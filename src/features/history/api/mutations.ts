@@ -22,7 +22,7 @@ export function useDeleteHistoryRecord() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (recordId: string) =>
-      apiFetch<{ deleted: boolean }>(`/api/records/${recordId}`, {
+      apiFetch<{ purged: boolean }>(`/api/records/${recordId}/purge`, {
         method: "DELETE",
       }),
     onSuccess: () => {

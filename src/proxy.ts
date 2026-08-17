@@ -40,6 +40,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Chạy proxy trên mọi route, trừ api, tài nguyên tĩnh và ảnh.
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  // Chạy proxy trên mọi route, trừ api, nội bộ _next, và mọi file tĩnh
+  // (đường dẫn có phần mở rộng, vd .svg/.png/.ico — gồm /assets/icon.svg, favicon).
+  matcher: ["/((?!api|_next/static|_next/image|.*\\..*).*)"],
 };

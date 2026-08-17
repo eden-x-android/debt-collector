@@ -1,8 +1,8 @@
-import { softDeleteRecord } from "@/entities/record/server";
+import { purgeRecord } from "@/entities/record/server";
 import { fail, ok } from "@/shared/lib/api-response";
 import { getSession } from "@/shared/lib/session";
 
-// Xoá record đang active: soft-delete → chuyển vào lịch sử (có thể khôi phục).
+// Xoá hẳn record khỏi lịch sử (không thể khôi phục).
 export async function DELETE(
   _request: Request,
   ctx: { params: Promise<{ id: string }> },
@@ -12,11 +12,11 @@ export async function DELETE(
 
   try {
     const { id } = await ctx.params;
-    await softDeleteRecord(id);
-    return ok({ deleted: true });
+    await purgeRecord(id);
+    return ok({ purged: true });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Xoá khoản nợ thất bại";
+      error instanceof Error ? error.message : "Xoá hẳn thất bại";
     return fail(message, 400);
   }
 }

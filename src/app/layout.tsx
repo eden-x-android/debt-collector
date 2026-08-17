@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Ghi nợ — Debt Collector",
   description: "Quản lý ghi nợ theo nhóm",
+  icons: { icon: "/assets/icon.svg" },
 };
 
 // Chạy trước khi hydrate để set theme ngay, tránh nháy sáng→tối.

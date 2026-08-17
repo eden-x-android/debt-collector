@@ -2,8 +2,9 @@
 export {
   addRecord,
   addRecordSchema,
-  deleteRecord,
   listHistory,
   markRecordDone,
+  purgeRecord,
   restoreRecord,
+  softDeleteRecord,
 } from "./record-service";

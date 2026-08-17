@@ -13,6 +13,7 @@ export type RecordDto = {
   note: string | null;
   createdAt: string;
   doneAt: string | null;
+  deletedAt: string | null;
 };
 
 export type GroupWithRecordsDto = {

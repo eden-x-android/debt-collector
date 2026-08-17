@@ -8,58 +8,25 @@ export const createGroupSchema = z.object({
   name: z.string().trim().min(1, "Tên nhóm không được để trống").max(100),
 });
 
-/**
- * Danh sách group đang hoạt động cho màn hình chính.
- * Hiển thị group còn record chưa done, hoặc group mới tạo chưa có record nào.
- * Group đã done hết record (record nằm trong lịch sử) sẽ bị ẩn.
- */
-export async function listActiveGroups(): Promise<GroupWithRecordsDto[]> {
-  const groups = await db.group.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      records: {
-        where: { doneAt: null },
-        orderBy: { createdAt: "desc" },
-      },
-      _count: { select: { records: true } },
-    },
-  });
+// Điều kiện record "đang active": chưa done và chưa bị xoá.
+const ACTIVE_RECORD = { doneAt: null, deletedAt: null } as const;
 
-  return groups
-    .filter((g) => g._count.records === 0 || g.records.length > 0)
-    .map((g) => ({
-      id: g.id,
-      name: g.name,
-      createdAt: g.createdAt.toISOString(),
-      updatedAt: g.updatedAt.toISOString(),
-      total: g.records.reduce((sum, r) => sum + Number(r.amount), 0),
-      records: g.records.map((r) => ({
-        id: r.id,
-        groupId: r.groupId,
-        amount: Number(r.amount),
-        note: r.note,
-        createdAt: r.createdAt.toISOString(),
-        doneAt: null,
-      })),
-    }));
-}
+type GroupRow = {
+  id: string;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+  records: {
+    id: string;
+    groupId: string;
+    amount: unknown;
+    note: string | null;
+    createdAt: Date;
+  }[];
+};
 
-/**
- * Lấy dữ liệu group (kèm record chưa done) để xuất báo cáo.
- * Truyền danh sách id để lọc; mảng rỗng = tất cả group đang có nợ.
- */
-export async function getReportGroups(
-  groupIds: string[],
-): Promise<GroupWithRecordsDto[]> {
-  const groups = await db.group.findMany({
-    where: groupIds.length > 0 ? { id: { in: groupIds } } : undefined,
-    orderBy: { createdAt: "desc" },
-    include: {
-      records: { where: { doneAt: null }, orderBy: { createdAt: "desc" } },
-    },
-  });
-
-  return groups.map((g) => ({
+function mapGroup(g: GroupRow): GroupWithRecordsDto {
+  return {
     id: g.id,
     name: g.name,
     createdAt: g.createdAt.toISOString(),
@@ -72,8 +39,46 @@ export async function getReportGroups(
       note: r.note,
       createdAt: r.createdAt.toISOString(),
       doneAt: null,
+      deletedAt: null,
     })),
-  }));
+  };
+}
+
+/**
+ * Danh sách group đang hoạt động cho màn hình chính.
+ * Hiển thị group còn record active, hoặc group mới tạo chưa có record nào.
+ * Group đã done/xoá hết record (record nằm trong lịch sử) sẽ bị ẩn.
+ */
+export async function listActiveGroups(): Promise<GroupWithRecordsDto[]> {
+  const groups = await db.group.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      records: { where: ACTIVE_RECORD, orderBy: { createdAt: "desc" } },
+      _count: { select: { records: true } },
+    },
+  });
+
+  return groups
+    .filter((g) => g._count.records === 0 || g.records.length > 0)
+    .map(mapGroup);
+}
+
+/**
+ * Lấy dữ liệu group (kèm record active) để xuất báo cáo.
+ * Truyền danh sách id để lọc; mảng rỗng = tất cả group đang có nợ.
+ */
+export async function getReportGroups(
+  groupIds: string[],
+): Promise<GroupWithRecordsDto[]> {
+  const groups = await db.group.findMany({
+    where: groupIds.length > 0 ? { id: { in: groupIds } } : undefined,
+    orderBy: { createdAt: "desc" },
+    include: {
+      records: { where: ACTIVE_RECORD, orderBy: { createdAt: "desc" } },
+    },
+  });
+
+  return groups.map(mapGroup);
 }
 
 /** Tạo group mới. */
@@ -88,7 +93,7 @@ export async function createGroup(name: string): Promise<{ id: string }> {
  */
 export async function markGroupDone(groupId: string): Promise<void> {
   const result = await db.debtRecord.updateMany({
-    where: { groupId, doneAt: null },
+    where: { groupId, ...ACTIVE_RECORD },
     data: { doneAt: new Date() },
   });
   if (result.count === 0) {

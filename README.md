@@ -1,8 +1,18 @@
 # Debt Collector — Web ghi nợ
 
-Web quản lý ghi nợ theo nhóm (theo người): tạo group, thêm record nợ, đánh dấu
-done theo record hoặc cả group (chuyển vào lịch sử), khôi phục / xoá hẳn trong
-lịch sử. Đăng nhập bằng username hardcode + OTP gửi qua email.
+Web quản lý ghi nợ theo nhóm (theo người). Đăng nhập bằng username hardcode + OTP
+gửi qua email.
+
+## Tính năng
+
+- **Nhóm nợ**: tạo group, thêm khoản nợ (kèm ghi chú và **ngày ghi nợ tuỳ chọn**),
+  xem tổng nợ từng nhóm.
+- **Đánh dấu done** theo từng khoản hoặc cả nhóm → chuyển vào **lịch sử**.
+- **Xoá mềm (soft-delete)**: khoản nợ bị xoá **không mất hẳn** mà vào lịch sử với
+  nhãn "Đã xoá"; có thể **khôi phục** hoặc **xoá hẳn** (purge) khỏi lịch sử.
+- **Xuất báo cáo** 1 hoặc nhiều nhóm, chọn định dạng **CSV / Excel (.xlsx) / HTML / Markdown**.
+- **Giao diện sáng/tối** (lưu lựa chọn, không nháy khi tải trang).
+- Highlight tab đang xem trên thanh điều hướng.
 
 ## Tech stack
 
@@ -12,6 +22,7 @@ lịch sử. Đăng nhập bằng username hardcode + OTP gửi qua email.
 - **Tailwind CSS** + shadcn/ui (base-nova)
 - **Supabase** Postgres (free) + **Prisma** ORM
 - **Resend** gửi OTP email (free 100 email/ngày)
+- **SheetJS (xlsx)** để xuất báo cáo Excel
 - Auth tự viết: username hardcode → OTP (TTL 5 phút, giới hạn số lần thử) → session JWT (cookie httpOnly)
 
 ## Cấu trúc thư mục (FSD)
@@ -23,10 +34,12 @@ src/
     login/ history/    # các trang
     layout.tsx page.tsx
   widgets/             # group-board, history-board, app-header
-  features/            # auth, manage-group, manage-record, history (mutation + UI)
+  features/            # auth, manage-group, manage-record, history, export-report
   entities/            # group, record (types, server service, query hooks, UI presentational)
-  shared/              # config, lib (session/otp/mailer/format), ui, api (db/http), types
+  shared/              # config, lib (session/otp/mailer/format/report), ui, api (db/http), types
   proxy.ts             # auth guard tầng edge (redirect /login)
+public/assets/         # icon.svg — favicon (emoji 🤡)
+docs/                  # vercel-deploy.workflow.yml — mẫu GitHub Action (tuỳ chọn)
 ```
 
 Quy ước dữ liệu: mỗi entity có 2 public API — `@/entities/x` (client: hooks + UI)
@@ -100,11 +113,26 @@ Mở http://localhost:3000 → tự chuyển sang `/login`. Nhập username `adm
 
 ## Deploy Vercel (free)
 
+**Cách 1 — Vercel Git Integration (khuyến nghị):**
+
 1. Push repo lên GitHub, import vào Vercel (Hobby plan).
-2. Thêm các biến môi trường ở **Project Settings → Environment Variables**:
-   `DATABASE_URL`, `DIRECT_URL`, `SESSION_SECRET`, `RESEND_API_KEY`,
-   `OTP_EMAIL_FROM` (và `OTP_RECIPIENT_EMAIL` nếu dùng).
-3. Deploy. Dùng domain `*.vercel.app` free (không cấu hình domain trả phí).
+2. Thêm các biến môi trường ở **Project Settings → Environment Variables**
+   (cho cả Production + Preview): `DATABASE_URL`, `DIRECT_URL`, `SESSION_SECRET`,
+   `RESEND_API_KEY`, `OTP_EMAIL_FROM` (và `OTP_RECIPIENT_EMAIL` nếu dùng).
+3. Deploy. Từ đó **mỗi lần push `master` Vercel tự deploy** — không cần thêm gì.
+
+Build đã cấu hình `prisma generate` trong `postinstall` và script `build`
+(`prisma generate && next build`) nên Vercel tự sinh Prisma Client khi build.
+
+**Cách 2 — GitHub Action (tuỳ chọn):**
+
+Mẫu workflow ở `docs/vercel-deploy.workflow.yml`. Để kích hoạt: copy thành
+`.github/workflows/deploy.yml` (dễ nhất là tạo qua GitHub web UI). Chỉ nên dùng
+khi muốn CI tự chủ deploy — nếu dùng thì **tắt** auto-deploy của Vercel để tránh
+deploy 2 lần. Thêm 3 secrets ở GitHub → *Settings → Secrets and variables →
+Actions*: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`. Biến môi trường
+app không cần đặt trong Action — bước `vercel pull` sẽ kéo từ Environment
+Variables của project.
 
 ## Lệnh hữu ích
 

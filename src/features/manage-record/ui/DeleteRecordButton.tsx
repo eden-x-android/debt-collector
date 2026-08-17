@@ -16,7 +16,7 @@ export function DeleteRecordButton({ recordId }: { recordId: string }) {
       size="icon-sm"
       onClick={() => deleteRecord.mutate(recordId)}
       disabled={deleteRecord.isPending}
-      title="Xoá khoản nợ"
+      title="Xoá (đưa vào lịch sử)"
     >
       {deleteRecord.isPending ? <Spinner /> : <Trash2 />}
     </Button>

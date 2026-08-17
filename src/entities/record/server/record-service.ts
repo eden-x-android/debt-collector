@@ -23,6 +23,7 @@ function toRecordDto(r: {
   note: string | null;
   createdAt: Date;
   doneAt: Date | null;
+  deletedAt: Date | null;
 }): RecordDto {
   return {
     id: r.id,
@@ -31,6 +32,7 @@ function toRecordDto(r: {
     note: r.note,
     createdAt: r.createdAt.toISOString(),
     doneAt: r.doneAt ? r.doneAt.toISOString() : null,
+    deletedAt: r.deletedAt ? r.deletedAt.toISOString() : null,
   };
 }
 
@@ -70,8 +72,25 @@ export async function markRecordDone(id: string): Promise<void> {
   });
 }
 
-/** Xoá hẳn 1 record (áp dụng cho record active lẫn record trong lịch sử). */
-export async function deleteRecord(id: string): Promise<void> {
+/**
+ * Xoá 1 record đang active: soft-delete (đánh dấu deletedAt) để giữ lại trong
+ * lịch sử, cho phép khôi phục hoặc xoá hẳn sau này.
+ */
+export async function softDeleteRecord(id: string): Promise<void> {
+  const record = await db.debtRecord.findUnique({
+    where: { id },
+    select: { id: true, deletedAt: true },
+  });
+  if (!record) throw new Error("Không tìm thấy record");
+  if (record.deletedAt) return; // đã xoá rồi
+  await db.debtRecord.update({
+    where: { id },
+    data: { deletedAt: new Date() },
+  });
+}
+
+/** Xoá hẳn 1 record khỏi DB (không thể khôi phục) — dùng trong lịch sử. */
+export async function purgeRecord(id: string): Promise<void> {
   try {
     await db.debtRecord.delete({ where: { id } });
   } catch {
@@ -79,7 +98,7 @@ export async function deleteRecord(id: string): Promise<void> {
   }
 }
 
-/** Khôi phục 1 record từ lịch sử về trạng thái active (bỏ doneAt). */
+/** Khôi phục 1 record từ lịch sử về active (bỏ cả doneAt lẫn deletedAt). */
 export async function restoreRecord(id: string): Promise<void> {
   const record = await db.debtRecord.findUnique({
     where: { id },
@@ -88,19 +107,26 @@ export async function restoreRecord(id: string): Promise<void> {
   if (!record) throw new Error("Không tìm thấy record");
   await db.debtRecord.update({
     where: { id },
-    data: { doneAt: null },
+    data: { doneAt: null, deletedAt: null },
   });
 }
 
-/** Danh sách lịch sử: các record đã done (phẳng, kèm tên group), mới nhất trước. */
+/**
+ * Lịch sử: các record đã done HOẶC đã xoá (phẳng, kèm tên group),
+ * sắp xếp theo thời điểm chuyển vào lịch sử mới nhất trước.
+ */
 export async function listHistory(): Promise<HistoryRecordDto[]> {
   const records = await db.debtRecord.findMany({
-    where: { doneAt: { not: null } },
-    orderBy: { doneAt: "desc" },
+    where: {
+      OR: [{ doneAt: { not: null } }, { deletedAt: { not: null } }],
+    },
     include: { group: { select: { name: true } } },
   });
-  return records.map((r) => ({
-    ...toRecordDto(r),
-    groupName: r.group.name,
-  }));
+  return records
+    .map((r) => ({ ...toRecordDto(r), groupName: r.group.name }))
+    .sort((a, b) => {
+      const ta = new Date(a.deletedAt ?? a.doneAt ?? a.createdAt).getTime();
+      const tb = new Date(b.deletedAt ?? b.doneAt ?? b.createdAt).getTime();
+      return tb - ta;
+    });
 }

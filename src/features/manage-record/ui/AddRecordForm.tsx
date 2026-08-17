@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/shared/ui/button";
+import { DateTimeField } from "@/shared/ui/datetime-field";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Spinner } from "@/shared/ui/spinner";
@@ -69,12 +70,11 @@ export function AddRecordForm({ groupId }: { groupId: string }) {
         <Label htmlFor={`date-${groupId}`} className="text-xs text-muted-foreground">
           Ngày ghi nợ (tuỳ chọn)
         </Label>
-        <Input
+        <DateTimeField
           id={`date-${groupId}`}
-          type="datetime-local"
           value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="sm:w-56"
+          onChange={setDate}
+          className="sm:w-64"
         />
       </div>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}

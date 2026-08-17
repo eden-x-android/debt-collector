@@ -28,9 +28,12 @@ model DebtRecord {
   note      String?
   createdAt DateTime  @default(now())
   doneAt    DateTime?
+  // Soft-delete: record bị xoá vẫn được giữ lại trong lịch sử (để khôi phục/xoá hẳn).
+  deletedAt DateTime?
 
   @@index([groupId])
   @@index([doneAt])
+  @@index([deletedAt])
 }
 
 // Thử thách OTP dùng cho luồng đăng nhập.

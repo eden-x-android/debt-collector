@@ -30,7 +30,7 @@ export function useMarkRecordDone() {
   });
 }
 
-/** Xoá hẳn 1 record đang active. */
+/** Xoá 1 record đang active (soft-delete → chuyển vào lịch sử). */
 export function useDeleteRecord() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -40,6 +40,7 @@ export function useDeleteRecord() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupKeys.all });
+      queryClient.invalidateQueries({ queryKey: historyKeys.all });
     },
   });
 }

@@ -38,7 +38,13 @@ export function HistoryBoard() {
             amount={record.amount}
             note={record.note}
             badge={record.groupName}
-            meta={record.doneAt ? `Done ${formatDateTime(record.doneAt)}` : undefined}
+            meta={
+              record.deletedAt
+                ? `Đã xoá · ${formatDateTime(record.deletedAt)}`
+                : record.doneAt
+                  ? `Đã xong · ${formatDateTime(record.doneAt)}`
+                  : undefined
+            }
             actions={
               <>
                 <RestoreRecordButton recordId={record.id} />
