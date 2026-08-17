@@ -3,6 +3,7 @@ export {
   createGroup,
   createGroupSchema,
   deleteEmptyGroup,
+  getReportGroups,
   listActiveGroups,
   markGroupDone,
 } from "./group-service";

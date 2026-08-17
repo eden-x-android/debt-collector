@@ -9,7 +9,7 @@ import type { RecordDto } from "@/shared/types/debt";
 export function useAddRecord(groupId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: { amount: number; note?: string }) =>
+    mutationFn: (input: { amount: number; note?: string; createdAt?: string }) =>
       apiPost<RecordDto>(`/api/groups/${groupId}/records`, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupKeys.all });

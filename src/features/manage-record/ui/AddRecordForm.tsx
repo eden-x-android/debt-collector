@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
+import { Label } from "@/shared/ui/label";
 import { Spinner } from "@/shared/ui/spinner";
 
 import { useAddRecord } from "../api/mutations";
@@ -12,6 +13,7 @@ import { useAddRecord } from "../api/mutations";
 export function AddRecordForm({ groupId }: { groupId: string }) {
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
+  const [date, setDate] = useState(""); // datetime-local, để trống = hiện tại
   const [error, setError] = useState<string | null>(null);
   const addRecord = useAddRecord(groupId);
 
@@ -23,13 +25,17 @@ export function AddRecordForm({ groupId }: { groupId: string }) {
       setError("Số tiền phải lớn hơn 0");
       return;
     }
+    // datetime-local là giờ local → chuyển sang ISO có timezone để server hiểu đúng.
+    const createdAt = date ? new Date(date).toISOString() : undefined;
     try {
       await addRecord.mutateAsync({
         amount: numericAmount,
         note: note.trim() || undefined,
+        createdAt,
       });
       setAmount("");
       setNote("");
+      setDate("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Thêm khoản nợ thất bại");
     }
@@ -58,6 +64,18 @@ export function AddRecordForm({ groupId }: { groupId: string }) {
           {addRecord.isPending ? <Spinner /> : <Plus />}
           Thêm
         </Button>
+      </div>
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
+        <Label htmlFor={`date-${groupId}`} className="text-xs text-muted-foreground">
+          Ngày ghi nợ (tuỳ chọn)
+        </Label>
+        <Input
+          id={`date-${groupId}`}
+          type="datetime-local"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="sm:w-56"
+        />
       </div>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </form>

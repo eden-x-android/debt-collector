@@ -16,7 +16,7 @@ export async function POST(
     if (!parsed.success) {
       return fail(parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ", 400);
     }
-    const record = await addRecord(id, parsed.data.amount, parsed.data.note);
+    const record = await addRecord(id, parsed.data);
     return ok(record, { status: 201 });
   } catch (error) {
     const message =

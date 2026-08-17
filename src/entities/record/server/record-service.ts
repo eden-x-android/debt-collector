@@ -10,7 +10,11 @@ export const addRecordSchema = z.object({
     .positive("Số tiền phải lớn hơn 0")
     .max(1_000_000_000_000, "Số tiền quá lớn"),
   note: z.string().trim().max(255).optional(),
+  // Ngày ghi nợ tuỳ chọn (ISO string) — không truyền thì mặc định thời điểm hiện tại.
+  createdAt: z.coerce.date().optional(),
 });
+
+export type AddRecordInput = z.infer<typeof addRecordSchema>;
 
 function toRecordDto(r: {
   id: string;
@@ -33,8 +37,7 @@ function toRecordDto(r: {
 /** Thêm 1 record nợ vào group. */
 export async function addRecord(
   groupId: string,
-  amount: number,
-  note?: string,
+  input: AddRecordInput,
 ): Promise<RecordDto> {
   const group = await db.group.findUnique({
     where: { id: groupId },
@@ -43,7 +46,12 @@ export async function addRecord(
   if (!group) throw new Error("Không tìm thấy group");
 
   const record = await db.debtRecord.create({
-    data: { groupId, amount, note: note && note.length > 0 ? note : null },
+    data: {
+      groupId,
+      amount: input.amount,
+      note: input.note && input.note.length > 0 ? input.note : null,
+      ...(input.createdAt ? { createdAt: input.createdAt } : {}),
+    },
   });
   return toRecordDto(record);
 }

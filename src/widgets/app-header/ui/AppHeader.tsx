@@ -1,6 +1,9 @@
 import Link from "next/link";
 
 import { LogoutButton } from "@/features/auth";
+import { ThemeToggle } from "@/shared/ui/theme-toggle";
+
+import { NavLinks } from "./NavLinks";
 
 export function AppHeader() {
   return (
@@ -10,16 +13,12 @@ export function AppHeader() {
           <Link href="/" className="font-semibold">
             Ghi nợ
           </Link>
-          <nav className="flex items-center gap-3 text-sm text-muted-foreground">
-            <Link href="/" className="hover:text-foreground">
-              Nhóm nợ
-            </Link>
-            <Link href="/history" className="hover:text-foreground">
-              Lịch sử
-            </Link>
-          </nav>
+          <NavLinks />
         </div>
-        <LogoutButton />
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          <LogoutButton />
+        </div>
       </div>
     </header>
   );

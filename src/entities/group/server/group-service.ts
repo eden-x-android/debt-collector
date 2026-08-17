@@ -44,6 +44,38 @@ export async function listActiveGroups(): Promise<GroupWithRecordsDto[]> {
     }));
 }
 
+/**
+ * Lấy dữ liệu group (kèm record chưa done) để xuất báo cáo.
+ * Truyền danh sách id để lọc; mảng rỗng = tất cả group đang có nợ.
+ */
+export async function getReportGroups(
+  groupIds: string[],
+): Promise<GroupWithRecordsDto[]> {
+  const groups = await db.group.findMany({
+    where: groupIds.length > 0 ? { id: { in: groupIds } } : undefined,
+    orderBy: { createdAt: "desc" },
+    include: {
+      records: { where: { doneAt: null }, orderBy: { createdAt: "desc" } },
+    },
+  });
+
+  return groups.map((g) => ({
+    id: g.id,
+    name: g.name,
+    createdAt: g.createdAt.toISOString(),
+    updatedAt: g.updatedAt.toISOString(),
+    total: g.records.reduce((sum, r) => sum + Number(r.amount), 0),
+    records: g.records.map((r) => ({
+      id: r.id,
+      groupId: r.groupId,
+      amount: Number(r.amount),
+      note: r.note,
+      createdAt: r.createdAt.toISOString(),
+      doneAt: null,
+    })),
+  }));
+}
+
 /** Tạo group mới. */
 export async function createGroup(name: string): Promise<{ id: string }> {
   const group = await db.group.create({ data: { name } });
