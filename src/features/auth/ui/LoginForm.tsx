@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { AUTH_USERNAME } from "@/shared/config/auth";
 import { Button } from "@/shared/ui/button";
 import {
   Card,
@@ -86,7 +85,7 @@ export function LoginForm() {
                 id="username"
                 name="username"
                 autoComplete="username"
-                placeholder={AUTH_USERNAME}
+                placeholder="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required

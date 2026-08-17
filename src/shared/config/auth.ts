@@ -5,8 +5,8 @@
  * Đây là 2 giá trị hardcode DUY NHẤT được phép (xem .agents/rules/security.md).
  */
 
-/** Username hardcode để đăng nhập. */
-export const AUTH_USERNAME = "admin";
+/** Username hardcode để đăng nhập (đặt khó đoán để tránh spam OTP). */
+export const AUTH_USERNAME = "admin1891999";
 
 /** Email nhận OTP (hardcode, cho phép override qua env khi cần). */
 export const OTP_RECIPIENT_EMAIL =

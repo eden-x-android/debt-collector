@@ -102,14 +102,14 @@ npx prisma db push     # tạo bảng theo prisma/schema.prisma
 npm run dev
 ```
 
-Mở http://localhost:3000 → tự chuyển sang `/login`. Nhập username `admin` → nhận OTP.
+Mở http://localhost:3000 → tự chuyển sang `/login`. Nhập username `admin1891999` → nhận OTP.
 
 > **Mẹo dev:** nếu chưa cấu hình `RESEND_API_KEY`, OTP sẽ được **in ra console
 > server** (chỉ ở môi trường dev) để test luồng đăng nhập.
 
 ## Đăng nhập
 
-- Username hardcode: `admin` (đổi trong `src/shared/config/auth.ts`).
+- Username hardcode: `admin1891999` (đổi trong `src/shared/config/auth.ts`).
 - OTP 6 số, hiệu lực 5 phút, tối đa 5 lần nhập sai, cooldown 60s giữa 2 lần gửi,
   tối đa 20 lần gửi/ngày (tự giới hạn để không vượt quota Resend).
 
