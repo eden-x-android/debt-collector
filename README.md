@@ -12,6 +12,8 @@ gửi qua email.
   nhãn "Đã xoá"; có thể **khôi phục** hoặc **xoá hẳn** (purge) khỏi lịch sử.
 - **Xuất báo cáo** 1 hoặc nhiều nhóm, chọn định dạng **CSV / Excel (.xlsx) / HTML / Markdown**.
 - **Giao diện sáng/tối** (lưu lựa chọn, không nháy khi tải trang).
+- **Bảng công khai** (`/public`) — chỉ xem, không cần đăng nhập, không gồm lịch
+  sử, có kèm xuất báo cáo. ⚠️ Ai có link đều xem được số liệu nợ.
 - Highlight tab đang xem trên thanh điều hướng.
 
 ## Tech stack

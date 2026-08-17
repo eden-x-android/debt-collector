@@ -16,6 +16,13 @@ export function AppHeader() {
           <NavLinks />
         </div>
         <div className="flex items-center gap-1">
+          <Link
+            href="/public"
+            target="_blank"
+            className="hidden text-sm text-muted-foreground hover:text-foreground sm:inline"
+          >
+            Bảng công khai ↗
+          </Link>
           <ThemeToggle />
           <LogoutButton />
         </div>
