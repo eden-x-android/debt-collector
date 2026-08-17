@@ -37,6 +37,11 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local agent/editor config (máy cá nhân, không đẩy lên repo)
+.claude/
+.vscode/
+.idea/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

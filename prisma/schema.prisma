@@ -30,4 +30,20 @@ model DebtRecord {
   doneAt    DateTime?
 
   @@index([groupId])
+  @@index([doneAt])
+}
+
+// Thử thách OTP dùng cho luồng đăng nhập.
+// OTP được lưu dưới dạng hash (không lưu code thô), có TTL và giới hạn số lần thử.
+model OtpChallenge {
+  id        String    @id @default(cuid())
+  username  String
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int       @default(0)
+  consumedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([username])
+  @@index([createdAt])
 }
