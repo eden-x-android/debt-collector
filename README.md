@@ -39,7 +39,7 @@ src/
   shared/              # config, lib (session/otp/mailer/format/report), ui, api (db/http), types
   proxy.ts             # auth guard tầng edge (redirect /login)
 public/assets/         # icon.svg — favicon (emoji 🤡)
-docs/                  # vercel-deploy.workflow.yml — mẫu GitHub Action (tuỳ chọn)
+.github/workflows/     # deploy.yml — auto-deploy Vercel (GitHub Action)
 ```
 
 Quy ước dữ liệu: mỗi entity có 2 public API — `@/entities/x` (client: hooks + UI)
@@ -124,15 +124,15 @@ Mở http://localhost:3000 → tự chuyển sang `/login`. Nhập username `adm
 Build đã cấu hình `prisma generate` trong `postinstall` và script `build`
 (`prisma generate && next build`) nên Vercel tự sinh Prisma Client khi build.
 
-**Cách 2 — GitHub Action (tuỳ chọn):**
+**Cách 2 — GitHub Action (`.github/workflows/deploy.yml`):**
 
-Mẫu workflow ở `docs/vercel-deploy.workflow.yml`. Để kích hoạt: copy thành
-`.github/workflows/deploy.yml` (dễ nhất là tạo qua GitHub web UI). Chỉ nên dùng
-khi muốn CI tự chủ deploy — nếu dùng thì **tắt** auto-deploy của Vercel để tránh
-deploy 2 lần. Thêm 3 secrets ở GitHub → *Settings → Secrets and variables →
-Actions*: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`. Biến môi trường
-app không cần đặt trong Action — bước `vercel pull` sẽ kéo từ Environment
-Variables của project.
+Đã cấu hình sẵn: workflow deploy production khi push `master`. Cần 3 secrets ở
+GitHub → *Settings → Secrets and variables → Actions*: `VERCEL_TOKEN`,
+`VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`. Biến môi trường app không cần đặt ở đây —
+bước `vercel pull` tự kéo từ Environment Variables của project.
+
+> Lưu ý: nếu vẫn bật Vercel Git Integration thì mỗi push sẽ deploy **2 lần**.
+> Muốn để Action lo, hãy tắt auto-deploy ở Vercel → Project → Settings → Git.
 
 ## Lệnh hữu ích
 
