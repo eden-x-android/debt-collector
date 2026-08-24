@@ -21,16 +21,14 @@ async function hasValidSession(token: string | undefined): Promise<boolean> {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  // Route duy nhất không cần đăng nhập.
   const isLoginRoute = pathname === "/login";
-  // Route công khai (không cần đăng nhập): trang login và bảng nợ công khai.
-  const isPublicRoute =
-    isLoginRoute || pathname === "/public" || pathname.startsWith("/public/");
 
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const authed = await hasValidSession(token);
 
   // Chưa đăng nhập mà vào route được bảo vệ → chuyển tới /login.
-  if (!authed && !isPublicRoute) {
+  if (!authed && !isLoginRoute) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

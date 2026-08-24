@@ -7,8 +7,10 @@ import type { HistoryRecordDto, RecordDto } from "@/shared/types/debt";
 export const addRecordSchema = z.object({
   amount: z
     .number({ error: "Số tiền không hợp lệ" })
-    .positive("Số tiền phải lớn hơn 0")
-    .max(1_000_000_000_000, "Số tiền quá lớn"),
+    // Cho phép số âm để cấn trừ khoản mình nợ lại đối phương; chỉ chặn 0.
+    .refine((v) => v !== 0, "Số tiền không được bằng 0")
+    // Decimal(14,2) trong schema → tối đa 12 chữ số phần nguyên.
+    .refine((v) => Math.abs(v) <= 999_999_999_999, "Số tiền quá lớn"),
   note: z.string().trim().max(255).optional(),
   // Ngày ghi nợ tuỳ chọn (ISO string) — không truyền thì mặc định thời điểm hiện tại.
   createdAt: z.coerce.date().optional(),

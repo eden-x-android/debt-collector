@@ -7,13 +7,15 @@ gửi qua email.
 
 - **Nhóm nợ**: tạo group, thêm khoản nợ (kèm ghi chú và **ngày ghi nợ tuỳ chọn**),
   xem tổng nợ từng nhóm.
+- **Cấn trừ**: nhập số tiền **âm** (gõ dấu `-` hoặc bấm nút `±`) để trừ khoản
+  mình nợ lại đối phương; khoản âm hiển thị màu xanh, tổng nhóm tự trừ.
 - **Đánh dấu done** theo từng khoản hoặc cả nhóm → chuyển vào **lịch sử**.
 - **Xoá mềm (soft-delete)**: khoản nợ bị xoá **không mất hẳn** mà vào lịch sử với
   nhãn "Đã xoá"; có thể **khôi phục** hoặc **xoá hẳn** (purge) khỏi lịch sử.
-- **Xuất báo cáo** 1 hoặc nhiều nhóm, chọn định dạng **CSV / Excel (.xlsx) / HTML / Markdown**.
+- **Xuất báo cáo** 1 hoặc nhiều nhóm, chọn định dạng **CSV / Excel (.xlsx) /
+  HTML / Markdown / Ảnh (PNG)**. Ảnh PNG render phía server bằng `next/og`
+  (Satori), font Be Vietnam Pro trong `assets/fonts/`.
 - **Giao diện sáng/tối** (lưu lựa chọn, không nháy khi tải trang).
-- **Bảng công khai** (`/public`) — chỉ xem, không cần đăng nhập, không gồm lịch
-  sử, có kèm xuất báo cáo. ⚠️ Ai có link đều xem được số liệu nợ.
 - Highlight tab đang xem trên thanh điều hướng.
 
 ## Tech stack
@@ -40,6 +42,7 @@ src/
   entities/            # group, record (types, server service, query hooks, UI presentational)
   shared/              # config, lib (session/otp/mailer/format/report), ui, api (db/http), types
   proxy.ts             # auth guard tầng edge (redirect /login)
+assets/fonts/          # TTF cho báo cáo PNG (Satori không dùng font hệ thống)
 public/assets/         # icon.svg — favicon (emoji 🤡)
 .github/workflows/     # deploy.yml — auto-deploy Vercel (GitHub Action)
 ```

@@ -3,6 +3,7 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
+import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { DateTimeField } from "@/shared/ui/datetime-field";
 import { Input } from "@/shared/ui/input";
@@ -11,6 +12,9 @@ import { Spinner } from "@/shared/ui/spinner";
 
 import { useAddRecord } from "../api/mutations";
 
+// Khớp cap của Decimal(14,2) trong prisma/schema.prisma.
+const AMOUNT_LIMIT = 999_999_999_999;
+
 export function AddRecordForm({ groupId }: { groupId: string }) {
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
@@ -18,12 +22,25 @@ export function AddRecordForm({ groupId }: { groupId: string }) {
   const [error, setError] = useState<string | null>(null);
   const addRecord = useAddRecord(groupId);
 
+  /**
+   * Đảo dấu: nợ ↔ cấn trừ. Cần cho mobile vì bàn phím số trên iOS không có
+   * dấu "-". Ô trống thì no-op — type="number" không giữ được value "-"
+   * (browser sanitize về ""), nên phải gõ số trước rồi mới bấm ±.
+   */
+  function toggleSign() {
+    setAmount((v) => (!v ? v : v.startsWith("-") ? v.slice(1) : `-${v}`));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     const numericAmount = Number(amount);
-    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-      setError("Số tiền phải lớn hơn 0");
+    if (!amount.trim() || !Number.isFinite(numericAmount)) {
+      setError("Nhập số tiền hợp lệ");
+      return;
+    }
+    if (numericAmount === 0) {
+      setError("Số tiền không được bằng 0");
       return;
     }
     // datetime-local là giờ local → chuyển sang ISO có timezone để server hiểu đúng.
@@ -42,18 +59,36 @@ export function AddRecordForm({ groupId }: { groupId: string }) {
     }
   }
 
+  const negative = amount.startsWith("-");
+
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
       <div className="flex flex-col gap-2 sm:flex-row">
-        <Input
-          type="number"
-          inputMode="numeric"
-          min={1}
-          placeholder="Số tiền"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="sm:w-40"
-        />
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={toggleSign}
+            aria-label="Đảo dấu (nợ / cấn trừ)"
+            title="Đảo dấu: nợ ↔ cấn trừ"
+          >
+            ±
+          </Button>
+          <Input
+            type="number"
+            min={-AMOUNT_LIMIT}
+            max={AMOUNT_LIMIT}
+            step="any"
+            placeholder="Số tiền (âm = cấn trừ)"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className={cn(
+              "flex-1 sm:w-40 sm:flex-none",
+              negative && "text-emerald-600 dark:text-emerald-400",
+            )}
+          />
+        </div>
         <Input
           placeholder="Ghi chú (tuỳ chọn)"
           value={note}

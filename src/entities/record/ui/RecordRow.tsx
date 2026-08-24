@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { formatVnd } from "@/shared/lib/format";
+import { formatVnd, isCredit } from "@/shared/lib/format";
 import { cn } from "@/shared/lib/utils";
 
 type RecordRowProps = {
@@ -36,7 +36,15 @@ export function RecordRow({
             {badge}
           </span>
         ) : null}
-        <div className="font-medium tabular-nums">{formatVnd(amount)}</div>
+        <div
+          className={cn(
+            "font-medium tabular-nums",
+            // Khoản âm = cấn trừ → tô xanh cho dễ phân biệt với khoản nợ.
+            isCredit(amount) && "text-emerald-600 dark:text-emerald-400",
+          )}
+        >
+          {formatVnd(amount)}
+        </div>
         {note ? (
           <p className="truncate text-sm text-muted-foreground">{note}</p>
         ) : null}

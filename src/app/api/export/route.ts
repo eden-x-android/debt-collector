@@ -4,8 +4,13 @@ import { getReportGroups } from "@/entities/group/server";
 import { fail } from "@/shared/lib/api-response";
 import { renderReport, type ReportFormat } from "@/shared/lib/report";
 import { getSession } from "@/shared/lib/session";
+import { REPORT_FORMATS } from "@/shared/types/report";
 
-const formatSchema = z.enum(["csv", "md", "html", "xlsx"]);
+// Render PNG (Satori + resvg) tốn thời gian hơn các định dạng text; nới trần
+// thời gian chạy. Route phải ở Node runtime (mặc định) vì Prisma cần Node.
+export const maxDuration = 30;
+
+const formatSchema = z.enum(REPORT_FORMATS);
 
 export async function GET(request: Request) {
   const session = await getSession();
@@ -28,7 +33,7 @@ export async function GET(request: Request) {
       return fail("Không có nhóm nợ nào để xuất", 400);
     }
 
-    const { body, contentType, filename } = renderReport(groups, format);
+    const { body, contentType, filename } = await renderReport(groups, format);
 
     return new Response(body as BodyInit, {
       headers: {

@@ -6,7 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/ui/card";
-import { formatVnd } from "@/shared/lib/format";
+import { formatVnd, isCredit } from "@/shared/lib/format";
+import { cn } from "@/shared/lib/utils";
 
 type GroupCardProps = {
   name: string;
@@ -32,7 +33,15 @@ export function GroupCard({
             <CardTitle className="truncate text-base">{name}</CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
               {recordCount} khoản ·{" "}
-              <span className="font-semibold text-foreground tabular-nums">
+              <span
+                className={cn(
+                  "font-semibold tabular-nums",
+                  // Tổng âm = bị cấn trừ vượt số nợ.
+                  isCredit(total)
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-foreground",
+                )}
+              >
                 {formatVnd(total)}
               </span>
             </p>

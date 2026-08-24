@@ -2,46 +2,24 @@
 import * as XLSX from "xlsx";
 
 import type { GroupWithRecordsDto } from "@/shared/types/debt";
+import type { ReportFormat } from "@/shared/types/report";
 
-export type ReportFormat = "csv" | "md" | "html" | "xlsx";
+import {
+  HEADERS,
+  fmtDate,
+  grandTotal,
+  isCredit,
+  numberFmt,
+  stamp,
+} from "./format";
+
+export type { ReportFormat };
 
 export type RenderedReport = {
   body: string | Uint8Array;
   contentType: string;
   filename: string;
 };
-
-const HEADERS = ["Nhóm", "Số tiền (VND)", "Ghi chú", "Ngày ghi nợ"] as const;
-
-const dateFmt = new Intl.DateTimeFormat("vi-VN", {
-  timeZone: "Asia/Ho_Chi_Minh",
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
-const numberFmt = new Intl.NumberFormat("vi-VN");
-
-function fmtDate(iso: string): string {
-  return dateFmt.format(new Date(iso));
-}
-
-function grandTotal(groups: GroupWithRecordsDto[]): number {
-  return groups.reduce((sum, g) => sum + g.total, 0);
-}
-
-function stamp(): string {
-  // Ngày cho tên file, theo giờ VN: YYYYMMDD
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Ho_Chi_Minh",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
-  return parts.replace(/-/g, "");
-}
 
 // ── CSV ────────────────────────────────────────────────────────────────
 function csvEscape(value: string): string {
@@ -96,6 +74,11 @@ function esc(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
+/** Class cho ô số tiền — khoản âm (cấn trừ) tô xanh. */
+function numClass(amount: number): string {
+  return isCredit(amount) ? "num credit" : "num";
+}
+
 function toHtml(groups: GroupWithRecordsDto[]): string {
   const sections = groups
     .map((g) => {
@@ -105,19 +88,25 @@ function toHtml(groups: GroupWithRecordsDto[]): string {
           : g.records
               .map(
                 (r) =>
-                  `<tr><td class="num">${numberFmt.format(r.amount)}</td><td>${esc(
-                    r.note ?? "",
-                  )}</td><td>${esc(fmtDate(r.createdAt))}</td></tr>`,
+                  `<tr><td class="${numClass(r.amount)}">${numberFmt.format(
+                    r.amount,
+                  )}</td><td>${esc(r.note ?? "")}</td><td>${esc(
+                    fmtDate(r.createdAt),
+                  )}</td></tr>`,
               )
               .join("");
       return `<h2>${esc(g.name)}</h2>
 <table>
   <thead><tr><th class="num">Số tiền (VND)</th><th>Ghi chú</th><th>Ngày ghi nợ</th></tr></thead>
   <tbody>${rows}</tbody>
-  <tfoot><tr><td class="num total">${numberFmt.format(g.total)}</td><td colspan="2">Tổng nhóm</td></tr></tfoot>
+  <tfoot><tr><td class="${numClass(g.total)} total">${numberFmt.format(
+    g.total,
+  )}</td><td colspan="2">Tổng nhóm</td></tr></tfoot>
 </table>`;
     })
     .join("\n");
+
+  const total = grandTotal(groups);
 
   return `<!doctype html>
 <html lang="vi"><head><meta charset="utf-8">
@@ -130,13 +119,16 @@ function toHtml(groups: GroupWithRecordsDto[]): string {
   th{background:#f5f5f5}
   .num{text-align:right;font-variant-numeric:tabular-nums}
   .total{font-weight:600}
+  .credit{color:#15803d}
   .muted{color:#888;text-align:center}
   .grand{margin-top:24px;font-size:16px;font-weight:700}
 </style></head>
 <body>
 <h1>Báo cáo ghi nợ</h1>
 ${sections}
-<p class="grand">TỔNG CỘNG: ${numberFmt.format(grandTotal(groups))} ₫</p>
+<p class="grand${isCredit(total) ? " credit" : ""}">TỔNG CỘNG: ${numberFmt.format(
+    total,
+  )} ₫</p>
 </body></html>`;
 }
 
@@ -167,13 +159,14 @@ const META: Record<ReportFormat, { contentType: string; ext: string }> = {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     ext: "xlsx",
   },
+  png: { contentType: "image/png", ext: "png" },
 };
 
 /** Kết xuất báo cáo theo định dạng yêu cầu. */
-export function renderReport(
+export async function renderReport(
   groups: GroupWithRecordsDto[],
   format: ReportFormat,
-): RenderedReport {
+): Promise<RenderedReport> {
   const { contentType, ext } = META[format];
   const filename = `bao-cao-no-${stamp()}.${ext}`;
   let body: string | Uint8Array;
@@ -190,6 +183,12 @@ export function renderReport(
     case "xlsx":
       body = toXlsx(groups);
       break;
+    case "png": {
+      // Nạp động: request csv/xlsx không phải khởi tạo wasm của next/og.
+      const { renderPng } = await import("./ReportImage");
+      body = await renderPng(groups);
+      break;
+    }
   }
   return { body, contentType, filename };
 }
