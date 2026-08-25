@@ -44,7 +44,7 @@ export function DateTimeField({
   }
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative w-full min-w-0", className)}>
       <input
         ref={ref}
         id={id}
@@ -52,7 +52,17 @@ export function DateTimeField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={cn(
-          "h-9 w-full rounded-lg border border-input bg-background pl-3 pr-9 text-sm shadow-xs outline-none transition-colors",
+          "h-9 w-full max-w-full min-w-0 rounded-lg border border-input bg-background pl-3 pr-9 shadow-xs outline-none transition-colors",
+          // appearance-none + min-w-0: iOS Safari áp intrinsic width riêng cho
+          // input datetime-local, không chịu co theo container → control rộng
+          // hơn khung và làm tràn ngang trên iPhone.
+          "appearance-none",
+          // iOS: mask ngày giờ mặc định canh phải và có padding riêng, cộng thêm
+          // vào bề rộng tối thiểu của control.
+          "[&::-webkit-date-and-time-value]:m-0 [&::-webkit-date-and-time-value]:text-left",
+          "[&::-webkit-datetime-edit]:p-0",
+          // 16px trên mobile: iOS tự zoom cả trang khi focus input có font < 16px.
+          "text-base sm:text-sm",
           "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
           "dark:bg-input/30",
           // Ẩn icon lịch mặc định của trình duyệt (webkit) để dùng icon riêng.
@@ -64,9 +74,9 @@ export function DateTimeField({
       {!value ? (
         <span
           suppressHydrationWarning
-          className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm text-muted-foreground"
+          className="pointer-events-none absolute inset-y-0 right-9 left-3 flex items-center text-base text-muted-foreground sm:text-sm"
         >
-          Bây giờ: {hintFmt.format(new Date())}
+          <span className="truncate">Bây giờ: {hintFmt.format(new Date())}</span>
         </span>
       ) : null}
       <button

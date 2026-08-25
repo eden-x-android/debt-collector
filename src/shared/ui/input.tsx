@@ -8,7 +8,10 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
       type={type}
       data-slot="input"
       className={cn(
-        "flex h-9 w-full min-w-0 rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors outline-none",
+        "flex h-9 w-full min-w-0 rounded-lg border border-input bg-background px-3 py-1 shadow-xs transition-colors outline-none",
+        // 16px trên mobile: iOS Safari tự zoom cả trang khi focus input có
+        // font-size < 16px, zoom xong thì layout tràn ngang.
+        "text-base sm:text-sm",
         "placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground",
         "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
         "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
