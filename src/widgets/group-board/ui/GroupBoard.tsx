@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo, useState } from "react";
+
 import { GroupCard, useGroups } from "@/entities/group";
 import { RecordRow } from "@/entities/record";
 import {
@@ -13,10 +15,20 @@ import {
   MarkRecordDoneButton,
 } from "@/features/manage-record";
 import { formatDateTime } from "@/shared/lib/format";
+import { matchesSearch } from "@/shared/lib/search";
+import { SearchField } from "@/shared/ui/search-field";
 import { Spinner } from "@/shared/ui/spinner";
 
 export function GroupBoard() {
   const { data: groups, isLoading, isError, error } = useGroups();
+  const [query, setQuery] = useState("");
+
+  // Lọc phía client trên dữ liệu đã tải sẵn — không gọi thêm API.
+  const visibleGroups = useMemo(
+    () => (groups ?? []).filter((g) => matchesSearch(g.name, query)),
+    [groups, query],
+  );
+  const filtering = query.trim().length > 0;
 
   return (
     <div className="space-y-6">
@@ -40,8 +52,30 @@ export function GroupBoard() {
         </p>
       ) : null}
 
+      {groups && groups.length > 0 ? (
+        <div className="space-y-2">
+          <SearchField
+            value={query}
+            onChange={setQuery}
+            label="Tìm nhóm nợ theo tên"
+            placeholder="Tìm nhóm theo tên..."
+          />
+          {filtering ? (
+            <p className="text-xs text-muted-foreground">
+              {visibleGroups.length}/{groups.length} nhóm khớp
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {filtering && visibleGroups.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          Không tìm thấy nhóm nào khớp &ldquo;{query.trim()}&rdquo;.
+        </p>
+      ) : null}
+
       <div className="space-y-4">
-        {groups?.map((group) => (
+        {visibleGroups.map((group) => (
           <GroupCard
             key={group.id}
             name={group.name}
