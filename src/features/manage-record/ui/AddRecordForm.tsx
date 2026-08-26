@@ -80,7 +80,7 @@ export function AddRecordForm({ groupId }: { groupId: string }) {
             min={-AMOUNT_LIMIT}
             max={AMOUNT_LIMIT}
             step="any"
-            placeholder="Số tiền (âm = cấn trừ)"
+            placeholder="Số tiền"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             className={cn(
