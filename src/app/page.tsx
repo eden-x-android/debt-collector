@@ -1,4 +1,5 @@
 import { ExportReport } from "@/features/export-report";
+import { GroupSearch } from "@/features/search-group";
 import { GroupBoard } from "@/widgets/group-board";
 import { AppHeader } from "@/widgets/app-header";
 
@@ -9,7 +10,10 @@ export default function HomePage() {
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h1 className="text-xl font-semibold">Nhóm nợ</h1>
-          <ExportReport />
+          <div className="flex items-center gap-2">
+            <GroupSearch />
+            <ExportReport />
+          </div>
         </div>
         <GroupBoard />
       </main>
