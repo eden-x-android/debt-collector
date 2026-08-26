@@ -4,11 +4,7 @@ import { useMemo } from "react";
 
 import { GroupCard, useGroups } from "@/entities/group";
 import { RecordRow } from "@/entities/record";
-import {
-  CreateGroupForm,
-  DeleteGroupButton,
-  MarkGroupDoneButton,
-} from "@/features/manage-group";
+import { DeleteGroupButton, MarkGroupDoneButton } from "@/features/manage-group";
 import {
   AddRecordForm,
   DeleteRecordButton,
@@ -32,8 +28,6 @@ export function GroupBoard() {
 
   return (
     <div className="space-y-6">
-      <CreateGroupForm />
-
       {isLoading ? (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Spinner /> Đang tải...
@@ -48,7 +42,7 @@ export function GroupBoard() {
 
       {groups && groups.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Chưa có nhóm nợ nào. Tạo nhóm đầu tiên ở trên.
+          Chưa có nhóm nợ nào. Bấm nút + ở trên để tạo nhóm đầu tiên.
         </p>
       ) : null}
 

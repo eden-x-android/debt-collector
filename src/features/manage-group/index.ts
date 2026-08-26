@@ -4,6 +4,6 @@ export {
   useDeleteGroup,
   useMarkGroupDone,
 } from "./api/mutations";
-export { CreateGroupForm } from "./ui/CreateGroupForm";
+export { CreateGroupButton } from "./ui/CreateGroupButton";
 export { DeleteGroupButton } from "./ui/DeleteGroupButton";
 export { MarkGroupDoneButton } from "./ui/MarkGroupDoneButton";

@@ -6,13 +6,7 @@ import { useState } from "react";
 import { useGroups } from "@/entities/group";
 import { type ReportFormat } from "@/shared/types/report";
 import { Button } from "@/shared/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/shared/ui/card";
+import { Dialog } from "@/shared/ui/dialog";
 import { Label } from "@/shared/ui/label";
 import { Spinner } from "@/shared/ui/spinner";
 
@@ -81,96 +75,90 @@ export function ExportReport() {
         Xuất báo cáo
       </Button>
 
-      {open ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          onClick={() => setOpen(false)}
-        >
-          <Card className="w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <CardHeader>
-              <CardTitle>Xuất báo cáo nợ</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm font-medium">Chọn nhóm</span>
-                  {allIds.length > 0 ? (
-                    <button
-                      type="button"
-                      className="text-xs text-primary hover:underline"
-                      onClick={toggleAll}
-                    >
-                      {allSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
-                    </button>
-                  ) : null}
-                </div>
-                <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-border p-2">
-                  {allIds.length === 0 ? (
-                    <p className="p-2 text-sm text-muted-foreground">
-                      Chưa có nhóm nợ nào.
-                    </p>
-                  ) : (
-                    groups?.map((g) => (
-                      <Label
-                        key={g.id}
-                        className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selected.has(g.id)}
-                          onChange={() => toggle(g.id)}
-                          className="size-4 accent-primary"
-                        />
-                        <span className="flex-1 truncate">{g.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {g.records.length} khoản
-                        </span>
-                      </Label>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <span className="mb-2 block text-sm font-medium">Định dạng</span>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {FORMATS.map((f) => (
-                    <Label
-                      key={f.value}
-                      className="flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 hover:bg-muted has-[:checked]:border-primary has-[:checked]:bg-muted"
-                    >
-                      <input
-                        type="radio"
-                        name="export-format"
-                        value={f.value}
-                        checked={format === f.value}
-                        onChange={() => setFormat(f.value)}
-                        className="size-4 accent-primary"
-                      />
-                      {f.label}
-                    </Label>
-                  ))}
-                </div>
-              </div>
-
-              {error ? <p className="text-sm text-destructive">{error}</p> : null}
-            </CardContent>
-            <CardFooter className="justify-end gap-2">
-              <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
-                Huỷ
-              </Button>
-              <Button
-                size="sm"
-                onClick={handleExport}
-                disabled={exportReport.isPending}
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Xuất báo cáo nợ"
+        footer={
+          <>
+            <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
+              Huỷ
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleExport}
+              disabled={exportReport.isPending}
+            >
+              {exportReport.isPending ? <Spinner /> : <FileDown />}
+              Tải xuống
+            </Button>
+          </>
+        }
+      >
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium">Chọn nhóm</span>
+            {allIds.length > 0 ? (
+              <button
+                type="button"
+                className="text-xs text-primary hover:underline"
+                onClick={toggleAll}
               >
-                {exportReport.isPending ? <Spinner /> : <FileDown />}
-                Tải xuống
-              </Button>
-            </CardFooter>
-          </Card>
+                {allSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
+              </button>
+            ) : null}
+          </div>
+          <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-border p-2">
+            {allIds.length === 0 ? (
+              <p className="p-2 text-sm text-muted-foreground">
+                Chưa có nhóm nợ nào.
+              </p>
+            ) : (
+              groups?.map((g) => (
+                <Label
+                  key={g.id}
+                  className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected.has(g.id)}
+                    onChange={() => toggle(g.id)}
+                    className="size-4 accent-primary"
+                  />
+                  <span className="flex-1 truncate">{g.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {g.records.length} khoản
+                  </span>
+                </Label>
+              ))
+            )}
+          </div>
         </div>
-      ) : null}
+
+        <div>
+          <span className="mb-2 block text-sm font-medium">Định dạng</span>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {FORMATS.map((f) => (
+              <Label
+                key={f.value}
+                className="flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 hover:bg-muted has-[:checked]:border-primary has-[:checked]:bg-muted"
+              >
+                <input
+                  type="radio"
+                  name="export-format"
+                  value={f.value}
+                  checked={format === f.value}
+                  onChange={() => setFormat(f.value)}
+                  className="size-4 accent-primary"
+                />
+                {f.label}
+              </Label>
+            ))}
+          </div>
+        </div>
+
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      </Dialog>
     </>
   );
 }
