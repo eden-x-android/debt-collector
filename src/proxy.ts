@@ -24,6 +24,13 @@ export async function proxy(request: NextRequest) {
   // Route duy nhất không cần đăng nhập.
   const isLoginRoute = pathname === "/login";
 
+  // ⚠️ TẠM: cho vào /preview để xem giao diện khi chưa có .env.local.
+  // Chỉ ở dev — production vẫn bị chặn ở đây, và trang đó cũng tự notFound().
+  // Xoá 3 dòng này cùng thư mục src/app/preview khi test xong.
+  if (process.env.NODE_ENV !== "production" && pathname.startsWith("/preview")) {
+    return NextResponse.next();
+  }
+
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const authed = await hasValidSession(token);
 
