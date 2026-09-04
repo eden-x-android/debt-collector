@@ -68,7 +68,9 @@ const C = {
   muted: "#6b7280",
   line: "#e5e7eb",
   headBg: "#f3f4f6",
-  credit: "#15803d", // số âm = cấn trừ, làm giảm nợ
+  // số âm = cấn trừ, làm giảm nợ. Giữ khớp token --credit (light) trong
+  // globals.css — Satori không đọc được CSS variable nên phải sync tay.
+  credit: "#00763a",
   creditBg: "#ecfdf5",
 } as const;
 

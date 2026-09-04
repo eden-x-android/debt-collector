@@ -62,14 +62,20 @@ export function Dialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-overlay p-4 backdrop-blur-sm fade-in duration-200"
       onClick={onClose}
     >
       <Card
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={cn("w-full max-w-md", className)}
+        className={cn(
+          // Đục hơn Card thường: chữ phải đọc được khi dialog đè lên nội dung.
+          // Override biến thay vì chồng class — xem chú thích @utility glass.
+          "w-full max-w-md [--glass-bg:var(--glass-strong-bg)] [--glass-blur:32px] [--glass-fallback-bg:var(--popover)]",
+          "animate-in zoom-in-95 duration-200",
+          className,
+        )}
         onClick={(e) => e.stopPropagation()}
       >
         <CardHeader>

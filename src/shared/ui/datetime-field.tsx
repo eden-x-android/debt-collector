@@ -52,7 +52,8 @@ export function DateTimeField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={cn(
-          "h-9 w-full max-w-full min-w-0 rounded-lg border border-input bg-background pl-3 pr-9 shadow-xs outline-none transition-colors",
+          // Diện mạo giữ khớp với input.tsx.
+          "h-9 w-full max-w-full min-w-0 rounded-lg border border-[var(--glass-quiet-border)] bg-[var(--glass-quiet-bg)] pl-3 pr-9 outline-none transition-colors",
           // appearance-none + min-w-0: iOS Safari áp intrinsic width riêng cho
           // input datetime-local, không chịu co theo container → control rộng
           // hơn khung và làm tràn ngang trên iPhone.
@@ -64,7 +65,6 @@ export function DateTimeField({
           // 16px trên mobile: iOS tự zoom cả trang khi focus input có font < 16px.
           "text-base sm:text-sm",
           "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
-          "dark:bg-input/30",
           // Ẩn icon lịch mặc định của trình duyệt (webkit) để dùng icon riêng.
           "[&::-webkit-calendar-picker-indicator]:hidden",
           // Khi trống: ẩn phần mask ngày mặc định để hiện hint bên dưới.

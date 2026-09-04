@@ -37,10 +37,11 @@ export function GroupSearch() {
   return (
     <div className="relative flex size-8 shrink-0 items-center justify-end">
       {open ? (
-        // Nền đục là bắt buộc: ô input có nền mờ (dark:bg-input/30, mà --input
-        // ở dark mode vốn đã chỉ 20% alpha) nên nếu khối này trong suốt thì nút
-        // + nằm dưới sẽ lộ xuyên qua ô search.
-        <div className="absolute top-1/2 right-0 z-20 w-[min(18rem,calc(100vw-2rem))] -translate-y-1/2 rounded-lg bg-background">
+        // Nền ĐỤC là bắt buộc, và là ngoại lệ có chủ ý giữa một giao diện toàn
+        // kính: ô input bên trong có nền bán trong, nên nếu khối này cũng trong
+        // thì nút + nằm dưới sẽ lộ xuyên qua ô search. Kính mờ cũng không cứu
+        // được — vẫn thấy lờ mờ bóng cái nút.
+        <div className="absolute top-1/2 right-0 z-20 w-[min(18rem,calc(100vw-2rem))] -translate-y-1/2 rounded-lg border border-[var(--glass-border)] bg-popover shadow-lg">
           <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
             <Search className="size-4" />
           </span>

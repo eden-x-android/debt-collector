@@ -26,13 +26,14 @@ export function RecordRow({
   return (
     <div
       className={cn(
-        "flex items-start justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2",
+        // Không backdrop-filter: dòng này nằm trong GroupCard vốn đã là kính.
+        "flex items-start justify-between gap-3 rounded-lg border border-[var(--glass-quiet-border)] bg-[var(--glass-quiet-bg)] px-3 py-2",
         className,
       )}
     >
       <div className="min-w-0 flex-1">
         {badge ? (
-          <span className="mb-0.5 inline-block rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+          <span className="mb-0.5 inline-block rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
             {badge}
           </span>
         ) : null}
@@ -40,7 +41,7 @@ export function RecordRow({
           className={cn(
             "font-medium tabular-nums",
             // Khoản âm = cấn trừ → tô xanh cho dễ phân biệt với khoản nợ.
-            isCredit(amount) && "text-emerald-600 dark:text-emerald-400",
+            isCredit(amount) && "text-credit",
           )}
         >
           {formatVnd(amount)}

@@ -7,26 +7,17 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+  /* Ưu tiên SF Pro thật trên máy Apple, nơi khác rơi về Inter (tải qua
+     next/font, xem layout.tsx). Liquid Glass sinh ra cho SF nên trên iPhone/Mac
+     chữ sẽ khớp đúng bản gốc. */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-inter),
+    system-ui, sans-serif;
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -39,6 +30,10 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* Token riêng của app: khoản cấn trừ (số âm) và nền mờ của dialog.
+     Có token thì đổi design system lần sau chỉ sửa ở đây. */
+  --color-credit: var(--credit);
+  --color-overlay: var(--overlay);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -48,73 +43,141 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Bảng màu Liquid Glass: nền lạnh nhạt thay cho thang xám vô sắc của shadcn,
+   accent xanh dương kiểu iOS. Màu ĐỤC ở đây chỉ là lớp lót — diện mạo thật do
+   các biến --glass-* bên dưới quyết định. */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --background: oklch(0.97 0.012 250);
+  --foreground: oklch(0.21 0.02 265);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --card-foreground: oklch(0.21 0.02 265);
+  --popover: oklch(0.99 0.005 250);
+  --popover-foreground: oklch(0.21 0.02 265);
+  /* Các màu dùng làm CHỮ (primary/destructive/credit) đã được hạ độ sáng tới
+     ngưỡng đạt WCAG AA khi đặt trên bề mặt kính phủ quầng mesh đậm nhất —
+     nền kính bán trong luôn sáng hơn nền trang, nên màu chữ phải tối hơn mức
+     trực giác. Đổi các giá trị này thì đo lại tương phản. */
+  --primary: oklch(0.52 0.19 259);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.93 0.015 255);
+  --secondary-foreground: oklch(0.28 0.03 265);
+  --muted: oklch(0.94 0.01 255);
+  --muted-foreground: oklch(0.5 0.025 265);
+  --accent: oklch(0.92 0.03 255);
+  --accent-foreground: oklch(0.28 0.03 265);
+  --destructive: oklch(0.55 0.21 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.86 0.015 255);
+  --input: oklch(0.9 0.012 255);
+  --ring: oklch(0.52 0.19 259);
+  --credit: oklch(0.49 0.14 155);
+  --overlay: oklch(0.2 0.02 265 / 38%);
+  /* Apple bo góc rất lớn; thang radius-* ở trên tự dẫn xuất theo. */
+  --radius: 1.25rem;
+
+  /* ── Vật liệu kính ────────────────────────────────────────────────────
+     Alpha nền cố ý giữ ở 0.6–0.75: trong veo hơn nữa là chữ tụt dưới ngưỡng
+     tương phản WCAG. Đây là ngưỡng đọc được, không phải ngưỡng đẹp nhất. */
+  --glass-bg: oklch(1 0 0 / 62%);
+  --glass-strong-bg: oklch(1 0 0 / 80%);
+  --glass-quiet-bg: oklch(1 0 0 / 50%);
+  --glass-border: oklch(1 0 0 / 70%);
+  --glass-quiet-border: oklch(1 0 0 / 55%);
+  --glass-blur: 20px;
+  --glass-saturate: 180%;
+  /* Dùng khi trình duyệt không có backdrop-filter (xem @utility glass). */
+  --glass-fallback-bg: var(--card);
+  /* Vệt sáng mép trên — thứ khiến bề mặt trông như thuỷ tinh chứ không phải
+     ô màu trong suốt. Cùng với bóng ngoài, đây là 2 chi tiết làm nên hiệu ứng. */
+  --glass-highlight: oklch(1 0 0 / 75%);
+  --glass-shadow:
+    0 1px 2px oklch(0.2 0.03 265 / 6%), 0 8px 24px -8px oklch(0.2 0.03 265 / 14%),
+    0 24px 48px -24px oklch(0.2 0.03 265 / 20%);
+
+  /* Quầng màu của nền mesh (xem body::before). */
+  --mesh-1: oklch(0.75 0.16 250 / 42%);
+  --mesh-2: oklch(0.74 0.15 305 / 34%);
+  --mesh-3: oklch(0.82 0.13 35 / 34%);
+  --mesh-4: oklch(0.8 0.13 195 / 30%);
 }
 
 .dark {
-  --background: oklch(0.22 0 0);
-  --foreground: oklch(0.97 0 0);
-  --card: oklch(0.27 0 0);
-  --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.27 0 0);
-  --popover-foreground: oklch(0.97 0 0);
-  --primary: oklch(0.92 0 0);
-  --primary-foreground: oklch(0.22 0 0);
-  --secondary: oklch(0.33 0 0);
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted: oklch(0.33 0 0);
-  --muted-foreground: oklch(0.76 0 0);
-  --accent: oklch(0.36 0 0);
-  --accent-foreground: oklch(0.97 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 14%);
-  --input: oklch(1 0 0 / 20%);
-  --ring: oklch(0.6 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: oklch(0.18 0.022 265);
+  --foreground: oklch(0.96 0.005 255);
+  --card: oklch(0.24 0.02 265);
+  --card-foreground: oklch(0.96 0.005 255);
+  --popover: oklch(0.26 0.022 265);
+  --popover-foreground: oklch(0.96 0.005 255);
+  /* Ở dark thì ngược lại: lớp kính sáng làm nền nhạt đi, nên màu chữ phải sáng
+     hơn mức trực giác mới đạt AA. */
+  --primary: oklch(0.79 0.14 255);
+  --primary-foreground: oklch(0.16 0.02 265);
+  --secondary: oklch(0.3 0.025 265);
+  --secondary-foreground: oklch(0.96 0.005 255);
+  --muted: oklch(0.3 0.02 265);
+  --muted-foreground: oklch(0.82 0.02 265);
+  --accent: oklch(0.35 0.035 265);
+  --accent-foreground: oklch(0.96 0.005 255);
+  --destructive: oklch(0.82 0.14 22);
+  --destructive-foreground: oklch(0.16 0.02 265);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 10%);
+  --ring: oklch(0.79 0.14 255);
+  --credit: oklch(0.83 0.15 158);
+  --overlay: oklch(0.12 0.02 265 / 55%);
+
+  /* Ở dark, kính là một màng sáng mỏng phủ lên nền tối (không phải màng trắng
+     đục như light) — nên alpha thấp hơn hẳn nhưng vẫn đủ tách khỏi nền. */
+  --glass-bg: oklch(1 0 0 / 8%);
+  --glass-strong-bg: oklch(0.28 0.025 265 / 85%);
+  --glass-quiet-bg: oklch(1 0 0 / 4.5%);
+  --glass-border: oklch(1 0 0 / 14%);
+  --glass-quiet-border: oklch(1 0 0 / 10%);
+  --glass-highlight: oklch(1 0 0 / 20%);
+  --glass-fallback-bg: var(--card);
+  --glass-shadow:
+    0 1px 2px oklch(0 0 0 / 24%), 0 8px 24px -8px oklch(0 0 0 / 40%),
+    0 24px 48px -24px oklch(0 0 0 / 50%);
+
+  --mesh-1: oklch(0.55 0.19 262 / 40%);
+  --mesh-2: oklch(0.48 0.18 310 / 34%);
+  --mesh-3: oklch(0.5 0.14 25 / 26%);
+  --mesh-4: oklch(0.52 0.13 200 / 28%);
+}
+
+/* ── Utility kính ───────────────────────────────────────────────────────
+   Chỉ MỘT utility, điều chỉnh qua biến. Cần đục hơn (dialog) thì override biến
+   ngay trên phần tử đó thay vì chồng thêm class:
+
+     class="glass [--glass-bg:var(--glass-strong-bg)] [--glass-blur:32px]"
+
+   Làm vậy vì hai class cùng đặt `background` sẽ ăn nhau theo thứ tự xuất hiện
+   trong stylesheet — thứ tự mà tailwind-merge không hề biết để dàn xếp. Override
+   biến thì luôn đúng, bất kể thứ tự.
+
+   Bề mặt phụ NẰM TRONG một lớp kính (RecordRow, Input, nút) không dùng utility
+   này: kính lồng kính vừa hại hiệu năng vừa cho ra màu xám đục, vì lớp con lấy
+   mẫu nền của lớp cha chứ không phải nền trang. Chúng dùng thẳng
+   --glass-quiet-bg / --glass-quiet-border, không blur. */
+@utility glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  /* Bề rộng viền qua biến chứ không hardcode: utility `border-*` của Tailwind
+     được sinh ra TRƯỚC .glass trong stylesheet nên không ghi đè nổi nó. Muốn
+     viền một cạnh thì override biến, vd header:
+     class="glass [--glass-border-width:0_0_1px_0]" */
+  border-width: var(--glass-border-width, 1px);
+  border-style: solid;
+  border-color: var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-highlight),
+    var(--glass-shadow);
+
+  @supports not
+    ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background: var(--glass-fallback-bg);
+  }
 }
 
 @layer base {
@@ -126,5 +189,35 @@
   }
   html {
     @apply font-sans;
+  }
+
+  /* Nền gradient mesh — thứ cho lớp kính có cái để làm mờ và bắt màu. Trên nền
+     phẳng thì mọi hiệu ứng kính đều vô hình.
+     `fixed` là điểm mấu chốt về hiệu năng: nền đứng yên khi cuộn nên trình
+     duyệt không phải vẽ lại gradient (và không phải tính lại backdrop-filter
+     của từng thẻ) theo mỗi frame. Cũng vì vậy mà không dùng
+     background-attachment: fixed — iOS Safari xử lý thuộc tính đó rất tệ. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      radial-gradient(60rem 60rem at 12% -10%, var(--mesh-1), transparent 60%),
+      radial-gradient(50rem 50rem at 92% 6%, var(--mesh-2), transparent 62%),
+      radial-gradient(48rem 48rem at 78% 96%, var(--mesh-3), transparent 60%),
+      radial-gradient(44rem 44rem at 6% 88%, var(--mesh-4), transparent 62%);
+  }
+}
+
+/* Người dùng tắt hiệu ứng chuyển động thì bỏ luôn animation mở dialog. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
