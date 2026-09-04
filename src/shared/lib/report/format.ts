@@ -3,8 +3,6 @@
 // mà không tạo circular import.
 import type { GroupWithRecordsDto } from "@/shared/types/debt";
 
-export const HEADERS = ["Nhóm", "Số tiền (VND)", "Ghi chú", "Ngày ghi nợ"] as const;
-
 const dateFmt = new Intl.DateTimeFormat("vi-VN", {
   timeZone: "Asia/Ho_Chi_Minh",
   day: "2-digit",
