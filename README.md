@@ -12,9 +12,9 @@ gửi qua email.
 - **Đánh dấu done** theo từng khoản hoặc cả nhóm → chuyển vào **lịch sử**.
 - **Xoá mềm (soft-delete)**: khoản nợ bị xoá **không mất hẳn** mà vào lịch sử với
   nhãn "Đã xoá"; có thể **khôi phục** hoặc **xoá hẳn** (purge) khỏi lịch sử.
-- **Xuất báo cáo** 1 hoặc nhiều nhóm, chọn định dạng **CSV / Excel (.xlsx) /
-  HTML / Markdown / Ảnh (PNG)**. Ảnh PNG render phía server bằng `next/og`
-  (Satori), font Be Vietnam Pro trong `assets/fonts/`.
+- **Xuất báo cáo** 1 hoặc nhiều nhóm, chọn định dạng **Ảnh (PNG) / HTML**, có
+  **xem trước** ngay trong dialog trước khi tải. Ảnh PNG render phía server bằng
+  `next/og` (Satori), font Be Vietnam Pro trong `assets/fonts/`.
 - **Giao diện sáng/tối** (lưu lựa chọn, không nháy khi tải trang).
 - Highlight tab đang xem trên thanh điều hướng.
 
@@ -26,7 +26,6 @@ gửi qua email.
 - **Tailwind CSS** + shadcn/ui (base-nova)
 - **Supabase** Postgres (free) + **Prisma** ORM
 - **Resend** gửi OTP email (free 100 email/ngày)
-- **SheetJS (xlsx)** để xuất báo cáo Excel
 - Auth tự viết: username hardcode → OTP (TTL 5 phút, giới hạn số lần thử) → session JWT (cookie httpOnly)
 
 ## Cấu trúc thư mục (FSD)

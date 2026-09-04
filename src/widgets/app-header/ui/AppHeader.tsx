@@ -7,7 +7,10 @@ import { NavLinks } from "./NavLinks";
 
 export function AppHeader() {
   return (
-    <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
+    // Lớp kính dễ thấy nhất: nội dung trôi bên dưới nó khi cuộn.
+    // Chỉ cần viền cạnh dưới — override biến vì class border-* không thắng
+    // được .glass (xem chú thích @utility glass trong globals.css).
+    <header className="glass sticky top-0 z-10 [--glass-border-width:0_0_1px_0]">
       <div className="mx-auto flex h-14 w-full max-w-3xl items-center justify-between gap-4 px-4">
         <div className="flex items-center gap-4">
           <Link href="/" className="font-semibold">

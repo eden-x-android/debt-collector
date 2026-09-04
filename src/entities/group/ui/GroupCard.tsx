@@ -37,9 +37,7 @@ export function GroupCard({
                 className={cn(
                   "font-semibold tabular-nums",
                   // Tổng âm = bị cấn trừ vượt số nợ.
-                  isCredit(total)
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-foreground",
+                  isCredit(total) ? "text-credit" : "text-foreground",
                 )}
               >
                 {formatVnd(total)}

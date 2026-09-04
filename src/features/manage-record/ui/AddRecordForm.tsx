@@ -85,7 +85,7 @@ export function AddRecordForm({ groupId }: { groupId: string }) {
             onChange={(e) => setAmount(e.target.value)}
             className={cn(
               "flex-1 sm:w-40 sm:flex-none",
-              negative && "text-emerald-600 dark:text-emerald-400",
+              negative && "text-credit",
             )}
           />
         </div>

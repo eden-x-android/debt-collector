@@ -7,7 +7,8 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "flex flex-col gap-4 rounded-xl border border-border bg-card py-4 text-card-foreground shadow-sm",
+        // Bề mặt kính chính của app (GroupCard, LoginForm, và thân Dialog).
+        "glass flex flex-col gap-4 rounded-xl py-4 text-card-foreground",
         className,
       )}
       {...props}
