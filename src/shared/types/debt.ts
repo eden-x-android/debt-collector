@@ -29,3 +29,9 @@ export type GroupWithRecordsDto = {
 
 /** Một dòng trong lịch sử: record đã done kèm tên group gốc. */
 export type HistoryRecordDto = RecordDto & { groupName: string };
+
+/** Một trang lịch sử. `nextOffset` = null nghĩa là đã hết dữ liệu. */
+export type HistoryPageDto = {
+  items: HistoryRecordDto[];
+  nextOffset: number | null;
+};

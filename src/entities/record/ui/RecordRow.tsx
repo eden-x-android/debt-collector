@@ -7,7 +7,7 @@ type RecordRowProps = {
   amount: number;
   note?: string | null;
   /** Dòng phụ mô tả thời gian (vd: "Tạo 17/08/2026 10:30"). */
-  meta?: string;
+  meta?: ReactNode;
   /** Nhãn nhỏ phía trên (vd: tên group trong lịch sử). */
   badge?: string;
   actions?: ReactNode;
