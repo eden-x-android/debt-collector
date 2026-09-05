@@ -2,7 +2,11 @@
 import { z } from "zod";
 
 import { db } from "@/shared/api/db";
-import type { HistoryRecordDto, RecordDto } from "@/shared/types/debt";
+import type {
+  HistoryPageDto,
+  HistoryRecordDto,
+  RecordDto,
+} from "@/shared/types/debt";
 
 export const addRecordSchema = z.object({
   amount: z
@@ -113,22 +117,42 @@ export async function restoreRecord(id: string): Promise<void> {
   });
 }
 
+export const historyQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  offset: z.coerce.number().int().min(0).default(0),
+});
+
+export type HistoryQuery = z.infer<typeof historyQuerySchema>;
+
 /**
  * Lịch sử: các record đã done HOẶC đã xoá (phẳng, kèm tên group),
- * sắp xếp theo thời điểm chuyển vào lịch sử mới nhất trước.
+ * sắp xếp theo thời điểm chuyển vào lịch sử mới nhất trước, cắt theo trang.
+ *
+ * Cắt trang trong bộ nhớ chứ không LIMIT/OFFSET dưới DB: khoá sắp xếp là
+ * COALESCE(deletedAt, doneAt, createdAt) — Prisma `orderBy` không diễn đạt được
+ * biểu thức này, mà đổi sang $queryRaw chỉ để phân trang là không đáng với quy
+ * mô một app ghi nợ cá nhân. Hợp đồng API vẫn là dạng trang nên sau này muốn
+ * đẩy xuống DB thì chỉ sửa hàm này, client không phải đụng tới.
  */
-export async function listHistory(): Promise<HistoryRecordDto[]> {
+export async function listHistory({
+  limit,
+  offset,
+}: HistoryQuery): Promise<HistoryPageDto> {
   const records = await db.debtRecord.findMany({
     where: {
       OR: [{ doneAt: { not: null } }, { deletedAt: { not: null } }],
     },
     include: { group: { select: { name: true } } },
   });
-  return records
+  const sorted: HistoryRecordDto[] = records
     .map((r) => ({ ...toRecordDto(r), groupName: r.group.name }))
     .sort((a, b) => {
       const ta = new Date(a.deletedAt ?? a.doneAt ?? a.createdAt).getTime();
       const tb = new Date(b.deletedAt ?? b.doneAt ?? b.createdAt).getTime();
       return tb - ta;
     });
+
+  const items = sorted.slice(offset, offset + limit);
+  const consumed = offset + items.length;
+  return { items, nextOffset: consumed < sorted.length ? consumed : null };
 }

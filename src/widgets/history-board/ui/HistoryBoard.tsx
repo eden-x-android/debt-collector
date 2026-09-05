@@ -1,15 +1,23 @@
 "use client";
 
 import { RecordRow, useHistory } from "@/entities/record";
-import {
-  DeleteHistoryButton,
-  RestoreRecordButton,
-} from "@/features/history";
+import { DeleteHistoryButton, RestoreRecordButton } from "@/features/history";
 import { formatDateTime } from "@/shared/lib/format";
+import { Button } from "@/shared/ui/button";
 import { Spinner } from "@/shared/ui/spinner";
 
 export function HistoryBoard() {
-  const { data: history, isLoading, isError, error } = useHistory();
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useHistory();
+
+  const records = data?.pages.flatMap((page) => page.items) ?? [];
 
   return (
     <div className="space-y-4">
@@ -25,25 +33,36 @@ export function HistoryBoard() {
         </p>
       ) : null}
 
-      {history && history.length === 0 ? (
+      {data && records.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           Lịch sử trống. Các khoản đã đánh dấu done sẽ xuất hiện ở đây.
         </p>
       ) : null}
 
       <div className="space-y-2">
-        {history?.map((record) => (
+        {records.map((record) => (
           <RecordRow
             key={record.id}
             amount={record.amount}
             note={record.note}
             badge={record.groupName}
+            // Tách 2 dòng thay vì nối bằng dấu ·: ghép lại thì trên mobile câu
+            // vẫn tự xuống dòng, nhưng ngắt ở chỗ ngẫu nhiên giữa ngày giờ.
             meta={
-              record.deletedAt
-                ? `Đã xoá · ${formatDateTime(record.deletedAt)}`
-                : record.doneAt
-                  ? `Đã xong · ${formatDateTime(record.doneAt)}`
-                  : undefined
+              <>
+                <span className="block">
+                  Ghi nợ {formatDateTime(record.createdAt)}
+                </span>
+                {record.deletedAt ? (
+                  <span className="block">
+                    Đã xoá {formatDateTime(record.deletedAt)}
+                  </span>
+                ) : record.doneAt ? (
+                  <span className="block">
+                    Đã xong {formatDateTime(record.doneAt)}
+                  </span>
+                ) : null}
+              </>
             }
             actions={
               <>
@@ -54,6 +73,20 @@ export function HistoryBoard() {
           />
         ))}
       </div>
+
+      {hasNextPage ? (
+        <div className="flex justify-center">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+          >
+            {isFetchingNextPage ? <Spinner /> : null}
+            Tải thêm
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

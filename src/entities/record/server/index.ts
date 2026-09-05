@@ -2,6 +2,7 @@
 export {
   addRecord,
   addRecordSchema,
+  historyQuerySchema,
   listHistory,
   markRecordDone,
   purgeRecord,

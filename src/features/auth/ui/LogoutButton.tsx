@@ -27,9 +27,14 @@ export function LogoutButton() {
       size="sm"
       onClick={handleLogout}
       disabled={logout.isPending}
+      aria-label="Đăng xuất"
+      title="Đăng xuất"
+      // Trên mobile chỉ còn icon: header cao cố định, giữ cả nhãn thì thanh
+      // điều hướng bên trái hết chỗ và chữ bị xuống dòng.
+      className="max-sm:gap-0 max-sm:px-2"
     >
       {logout.isPending ? <Spinner /> : <LogOut />}
-      Đăng xuất
+      <span className="hidden sm:inline">Đăng xuất</span>
     </Button>
   );
 }
