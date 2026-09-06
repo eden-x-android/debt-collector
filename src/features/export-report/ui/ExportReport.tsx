@@ -161,7 +161,11 @@ export function ExportReport() {
           />
         )}
 
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        {error ? (
+          <p className="brutal bg-danger-bg px-3 py-2 text-sm font-bold text-danger-foreground [--brutal-shadow:var(--shadow-brutal-sm)]">
+            {error}
+          </p>
+        ) : null}
       </Dialog>
     </>
   );

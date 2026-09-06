@@ -6,7 +6,9 @@ export default function HistoryPage() {
     <div className="flex flex-1 flex-col">
       <AppHeader />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
-        <h1 className="mb-4 text-xl font-semibold">Lịch sử</h1>
+        <h1 className="mb-4 font-display text-2xl font-bold tracking-tight">
+          Lịch sử
+        </h1>
         <HistoryBoard />
       </main>
     </div>

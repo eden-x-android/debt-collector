@@ -16,7 +16,9 @@ export function GroupToolbar() {
   return (
     <div className="mb-4 flex items-center justify-between gap-3">
       {searchOpen ? null : (
-        <h1 className="min-w-0 truncate text-xl font-semibold">Nhóm nợ</h1>
+        <h1 className="min-w-0 truncate font-display text-2xl font-bold tracking-tight">
+          Nhóm nợ
+        </h1>
       )}
       <div
         className={cn(

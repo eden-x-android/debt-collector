@@ -31,10 +31,13 @@ const PAD_TOP = 44;
 const PAD_BOTTOM = 44;
 
 const TITLE_H = 104;
+const TITLE_MB = 24; // tiêu đề giờ là dải màu đặc, cần tách khỏi nhóm đầu tiên
 const GROUP_NAME_H = 40;
 const GROUP_NAME_MB = 10;
 const COL_HEAD_H = 32;
-const COL_HEAD_MB = 6;
+// 0: header cột dính liền dòng đầu tiên để cả bảng thành một khối viền liền
+// mạch. GROUP_FIXED_H dẫn xuất từ hằng này nên measure() tự khớp theo.
+const COL_HEAD_MB = 0;
 const ROW_H = 40;
 const MORE_H = 34; // dòng "… và N khoản khác"
 const SUBTOTAL_MT = 8;
@@ -48,7 +51,7 @@ const GROUP_FIXED_H =
   GROUP_NAME_H + GROUP_NAME_MB + COL_HEAD_H + COL_HEAD_MB + SUBTOTAL_MT + SUBTOTAL_H;
 
 const FIXED_OVERHEAD =
-  PAD_TOP + TITLE_H + GRAND_MT + GRAND_H + PAD_BOTTOM + SAFETY;
+  PAD_TOP + TITLE_H + TITLE_MB + GRAND_MT + GRAND_H + PAD_BOTTOM + SAFETY;
 
 const COL_AMOUNT_W = 230;
 const COL_DATE_W = 190;
@@ -62,16 +65,20 @@ const ROW_PAD_X = 12;
 const NOTE_MAX = 42;
 const GROUP_NAME_MAX = 40;
 
+// Bảng màu neobrutalism, giữ khớp bằng TAY với token light trong globals.css —
+// Satori không đọc được CSS variable. Luôn là bản sáng: báo cáo là "tờ giấy"
+// để gửi đi, không theo theme của app.
 const C = {
-  bg: "#ffffff",
-  text: "#111827",
-  muted: "#6b7280",
-  line: "#e5e7eb",
-  headBg: "#f3f4f6",
-  // số âm = cấn trừ, làm giảm nợ. Giữ khớp token --credit (light) trong
-  // globals.css — Satori không đọc được CSS variable nên phải sync tay.
-  credit: "#00763a",
-  creditBg: "#ecfdf5",
+  bg: "#fffbeb", // nền giấy       (--bg-alt)
+  surface: "#ffffff", // nền bảng  (--bg)
+  text: "#000000",
+  muted: "#52525b",
+  line: "#000000", // viền đặc, không phải xám nhạt
+  headBg: "#ffd400", // header cột + các dải nhấn (--accent)
+  // Số âm = cấn trừ, làm giảm nợ. Đánh dấu bằng NỀN xanh nhạt + chữ đen chứ
+  // không phải chữ xanh: #22c55e (--success) làm màu chữ không đạt WCAG AA.
+  credit: "#000000",
+  creditBg: "#4aff9e", // (--success-bg) xanh neon, chữ đen đè lên đạt 16:1
 } as const;
 
 // ── View model ─────────────────────────────────────────────────────────
@@ -211,26 +218,34 @@ function ReportImage({ plan }: { plan: ReportPlan }) {
         fontFamily: REPORT_FONT_FAMILY,
       }}
     >
+      {/* Dải tiêu đề vàng viền đen. Yoga tính height theo border-box nên viền +
+          padding nằm GỌN trong TITLE_H, measure() không bị lệch. */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
+          justifyContent: "center",
           height: TITLE_H,
+          marginBottom: TITLE_MB,
+          borderWidth: 3,
+          borderStyle: "solid",
+          borderColor: C.line,
+          backgroundColor: C.headBg,
+          paddingLeft: 16,
+          paddingRight: 16,
         }}
       >
         <div
           style={{
             display: "flex",
-            fontSize: 40,
+            fontSize: 38,
             fontWeight: 700,
             lineHeight: 1.2,
           }}
         >
           Báo cáo ghi nợ
         </div>
-        <div
-          style={{ display: "flex", fontSize: 20, color: C.muted, marginTop: 8 }}
-        >
+        <div style={{ display: "flex", fontSize: 19, marginTop: 4 }}>
           {plan.generatedAt}
         </div>
       </div>
@@ -265,11 +280,16 @@ function ReportImage({ plan }: { plan: ReportPlan }) {
               marginBottom: COL_HEAD_MB,
               alignItems: "center",
               backgroundColor: C.headBg,
+              // Viền đủ 4 cạnh; các dòng bên dưới chỉ có trái/phải/dưới nên
+              // ghép lại thành một lưới khép kín, không nhân đôi nét ngang.
+              borderWidth: 2,
+              borderStyle: "solid",
+              borderColor: C.line,
               paddingLeft: ROW_PAD_X,
               paddingRight: ROW_PAD_X,
               fontSize: 17,
               fontWeight: 700,
-              color: C.muted,
+              color: C.text,
             }}
           >
             <div
@@ -303,6 +323,12 @@ function ReportImage({ plan }: { plan: ReportPlan }) {
                 height: ROW_H,
                 alignItems: "center",
                 justifyContent: "center",
+                backgroundColor: C.surface,
+                borderLeftWidth: 2,
+                borderRightWidth: 2,
+                borderBottomWidth: 2,
+                borderStyle: "solid",
+                borderColor: C.line,
                 fontSize: 18,
                 color: C.muted,
               }}
@@ -320,11 +346,13 @@ function ReportImage({ plan }: { plan: ReportPlan }) {
                   alignItems: "center",
                   paddingLeft: ROW_PAD_X,
                   paddingRight: ROW_PAD_X,
-                  borderBottomWidth: 1,
-                  borderBottomStyle: "solid",
-                  borderBottomColor: C.line,
+                  borderLeftWidth: 2,
+                  borderRightWidth: 2,
+                  borderBottomWidth: 2,
+                  borderStyle: "solid",
+                  borderColor: C.line,
                   fontSize: 19,
-                  backgroundColor: r.credit ? C.creditBg : C.bg,
+                  backgroundColor: r.credit ? C.creditBg : C.surface,
                 }}
               >
                 <div
@@ -371,6 +399,12 @@ function ReportImage({ plan }: { plan: ReportPlan }) {
                 height: MORE_H,
                 alignItems: "center",
                 paddingLeft: ROW_PAD_X,
+                backgroundColor: C.surface,
+                borderLeftWidth: 2,
+                borderRightWidth: 2,
+                borderBottomWidth: 2,
+                borderStyle: "solid",
+                borderColor: C.line,
                 fontSize: 17,
                 color: C.muted,
               }}
@@ -386,6 +420,13 @@ function ReportImage({ plan }: { plan: ReportPlan }) {
               height: SUBTOTAL_H,
               marginTop: SUBTOTAL_MT,
               alignItems: "center",
+              // Dải nhấn tách khỏi bảng: vàng nếu còn nợ, xanh nhạt nếu đã bị
+              // cấn trừ quá số nợ. Chữ luôn đen — nền mang tín hiệu, không phải
+              // màu chữ.
+              backgroundColor: g.totalCredit ? C.creditBg : C.headBg,
+              borderWidth: 2,
+              borderStyle: "solid",
+              borderColor: C.line,
               paddingLeft: ROW_PAD_X,
               paddingRight: ROW_PAD_X,
               fontSize: 20,
@@ -397,12 +438,19 @@ function ReportImage({ plan }: { plan: ReportPlan }) {
                 width: COL_AMOUNT_W,
                 justifyContent: "flex-end",
                 fontWeight: 700,
-                color: g.totalCredit ? C.credit : C.text,
+                color: C.text,
               }}
             >
               {g.total}
             </div>
-            <div style={{ display: "flex", marginLeft: COL_GAP, color: C.muted }}>
+            <div
+              style={{
+                display: "flex",
+                marginLeft: COL_GAP,
+                fontWeight: 700,
+                color: C.text,
+              }}
+            >
               Tổng nhóm
             </div>
           </div>
@@ -433,22 +481,16 @@ function ReportImage({ plan }: { plan: ReportPlan }) {
           justifyContent: "space-between",
           paddingLeft: ROW_PAD_X,
           paddingRight: ROW_PAD_X,
-          borderTopWidth: 2,
-          borderTopStyle: "solid",
-          borderTopColor: C.text,
+          backgroundColor: plan.grandCredit ? C.creditBg : C.headBg,
+          borderWidth: 3,
+          borderStyle: "solid",
+          borderColor: C.line,
           fontSize: 30,
           fontWeight: 700,
         }}
       >
         <div style={{ display: "flex" }}>TỔNG CỘNG</div>
-        <div
-          style={{
-            display: "flex",
-            color: plan.grandCredit ? C.credit : C.text,
-          }}
-        >
-          {plan.grandTotal}
-        </div>
+        <div style={{ display: "flex", color: C.text }}>{plan.grandTotal}</div>
       </div>
     </div>
   );

@@ -62,7 +62,7 @@ export function Dialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-overlay p-4 backdrop-blur-sm fade-in duration-200"
+      className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-overlay p-4 fade-in duration-100"
       onClick={onClose}
     >
       <Card
@@ -70,10 +70,11 @@ export function Dialog({
         aria-modal="true"
         aria-labelledby={titleId}
         className={cn(
-          // Đục hơn Card thường: chữ phải đọc được khi dialog đè lên nội dung.
-          // Override biến thay vì chồng class — xem chú thích @utility glass.
-          "w-full max-w-md [--glass-bg:var(--glass-strong-bg)] [--glass-blur:32px] [--glass-fallback-bg:var(--popover)]",
-          "animate-in zoom-in-95 duration-200",
+          // Bóng dày hơn Card thường để dialog nổi hẳn lên khỏi nội dung phía
+          // sau. Override biến thay vì chồng class — xem chú thích @utility
+          // brutal trong globals.css.
+          "w-full max-w-md bg-popover [--brutal-shadow:var(--shadow-brutal-lg)]",
+          "animate-in zoom-in-95 duration-100",
           className,
         )}
         onClick={(e) => e.stopPropagation()}

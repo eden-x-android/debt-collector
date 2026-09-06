@@ -7,8 +7,8 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        // Bề mặt kính chính của app (GroupCard, LoginForm, và thân Dialog).
-        "glass flex flex-col gap-4 rounded-xl py-4 text-card-foreground",
+        // Bề mặt chính của app (GroupCard, LoginForm, và thân Dialog).
+        "brutal flex flex-col gap-4 bg-card py-4 text-card-foreground",
         className,
       )}
       {...props}
@@ -30,7 +30,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn("font-semibold leading-none", className)}
+      className={cn("font-display font-bold tracking-tight leading-none", className)}
       {...props}
     />
   );

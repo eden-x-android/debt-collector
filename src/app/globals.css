@@ -7,12 +7,14 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* Ưu tiên SF Pro thật trên máy Apple, nơi khác rơi về Inter (tải qua
-     next/font, xem layout.tsx). Liquid Glass sinh ra cho SF nên trên iPhone/Mac
-     chữ sẽ khớp đúng bản gốc. */
-  --font-sans:
-    -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-inter),
-    system-ui, sans-serif;
+  /* Body: Inter (tải qua next/font, xem layout.tsx). Cố ý KHÔNG ưu tiên
+     -apple-system nữa — SF Pro có mặt ở đây là di sản của bản Liquid Glass
+     (thiết kế quanh SF), còn neobrutalism cần một mặt chữ giống hệt nhau trên
+     mọi máy. */
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  /* Tiêu đề: grotesk đậm, đặc trưng của neobrutalism. Rơi về Inter nếu font
+     chưa tải xong. */
+  --font-display: var(--font-space-grotesk), var(--font-inter), sans-serif;
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -20,6 +22,7 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
+  --color-accent-alt: var(--accent-alt);
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -30,10 +33,25 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  /* Token riêng của app: khoản cấn trừ (số âm) và nền mờ của dialog.
-     Có token thì đổi design system lần sau chỉ sửa ở đây. */
-  --color-credit: var(--credit);
+  --color-surface: var(--surface);
+  /* Token riêng của app.
+     success/danger dùng làm KHỐI NỀN (chữ đen đè lên), không dùng làm màu chữ
+     — xem chú thích ở :root. */
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-success-foreground: var(--success-foreground);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-foreground: var(--danger-foreground);
   --color-overlay: var(--overlay);
+  /* Bóng cứng offset — thay cho bóng mềm nhiều lớp của bản kính. Không blur,
+     không spread, không alpha: một khối màu đặc dịch sang phải-xuống dưới. */
+  --shadow-brutal-sm: 2px 2px 0 0 var(--shadow-color);
+  --shadow-brutal: 4px 4px 0 0 var(--shadow-color);
+  --shadow-brutal-lg: 6px 6px 0 0 var(--shadow-color);
+  /* Thang radius giữ nguyên công thức nhưng --radius = 0 nên tất cả đều vuông.
+     Để nguyên thang này thay vì xoá: sau này muốn bo góc lại chỉ cần sửa
+     --radius, không phải đụng vào từng component. */
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -43,146 +61,142 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Bảng màu Liquid Glass: nền lạnh nhạt thay cho thang xám vô sắc của shadcn,
-   accent xanh dương kiểu iOS. Màu ĐỤC ở đây chỉ là lớp lót — diện mạo thật do
-   các biến --glass-* bên dưới quyết định. */
+/* Bảng màu neobrutalism: đen/trắng/vàng, không có thang xám vô sắc.
+   Phân tầng bề mặt 3 bậc, bậc sau luôn NỔI hơn bậc trước:
+     trang   = --background  (--bg)
+     thẻ     = --card        (--bg-alt)
+     lớp lồng trong thẻ = --surface   (dòng nợ, ô nhập, nút outline, nav)
+
+   --surface là bậc phải khai báo riêng cho từng theme chứ không dùng lại --bg:
+   ở light, --bg (#ffffff) đã sáng hơn thẻ kem #fffbeb nên tự nó là bậc nổi;
+   nhưng ở dark, --bg (#121212) lại TỐI hơn thẻ #18181b và chênh chưa tới 2%
+   độ sáng — hai nền dính vào nhau, chỉ còn cái viền phân biệt. */
 :root {
-  --background: oklch(0.97 0.012 250);
-  --foreground: oklch(0.21 0.02 265);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.21 0.02 265);
-  --popover: oklch(0.99 0.005 250);
-  --popover-foreground: oklch(0.21 0.02 265);
-  /* Các màu dùng làm CHỮ (primary/destructive/credit) đã được hạ độ sáng tới
-     ngưỡng đạt WCAG AA khi đặt trên bề mặt kính phủ quầng mesh đậm nhất —
-     nền kính bán trong luôn sáng hơn nền trang, nên màu chữ phải tối hơn mức
-     trực giác. Đổi các giá trị này thì đo lại tương phản. */
-  --primary: oklch(0.52 0.19 259);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.93 0.015 255);
-  --secondary-foreground: oklch(0.28 0.03 265);
-  --muted: oklch(0.94 0.01 255);
-  --muted-foreground: oklch(0.5 0.025 265);
-  --accent: oklch(0.92 0.03 255);
-  --accent-foreground: oklch(0.28 0.03 265);
-  --destructive: oklch(0.55 0.21 25);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.86 0.015 255);
-  --input: oklch(0.9 0.012 255);
-  --ring: oklch(0.52 0.19 259);
-  --credit: oklch(0.49 0.14 155);
-  --overlay: oklch(0.2 0.02 265 / 38%);
-  /* Apple bo góc rất lớn; thang radius-* ở trên tự dẫn xuất theo. */
-  --radius: 1.25rem;
+  --bg: #ffffff;
+  --bg-alt: #fffbeb;
 
-  /* ── Vật liệu kính ────────────────────────────────────────────────────
-     Alpha nền cố ý giữ ở 0.6–0.75: trong veo hơn nữa là chữ tụt dưới ngưỡng
-     tương phản WCAG. Đây là ngưỡng đọc được, không phải ngưỡng đẹp nhất. */
-  --glass-bg: oklch(1 0 0 / 62%);
-  --glass-strong-bg: oklch(1 0 0 / 80%);
-  --glass-quiet-bg: oklch(1 0 0 / 50%);
-  --glass-border: oklch(1 0 0 / 70%);
-  --glass-quiet-border: oklch(1 0 0 / 55%);
-  --glass-blur: 20px;
-  --glass-saturate: 180%;
-  /* Dùng khi trình duyệt không có backdrop-filter (xem @utility glass). */
-  --glass-fallback-bg: var(--card);
-  /* Vệt sáng mép trên — thứ khiến bề mặt trông như thuỷ tinh chứ không phải
-     ô màu trong suốt. Cùng với bóng ngoài, đây là 2 chi tiết làm nên hiệu ứng. */
-  --glass-highlight: oklch(1 0 0 / 75%);
-  --glass-shadow:
-    0 1px 2px oklch(0.2 0.03 265 / 6%), 0 8px 24px -8px oklch(0.2 0.03 265 / 14%),
-    0 24px 48px -24px oklch(0.2 0.03 265 / 20%);
+  /* Màu ngữ nghĩa neon. QUAN TRỌNG: chúng là màu NỀN, không phải màu chữ —
+     khoản cấn trừ (số âm) là chip nền --success-bg, nút xoá / hộp lỗi là khối
+     nền --danger-bg. Khối màu phẳng chứ không phải chữ màu, đúng ngôn ngữ
+     neobrutalism.
 
-  /* Quầng màu của nền mesh (xem body::before). */
-  --mesh-1: oklch(0.75 0.16 250 / 42%);
-  --mesh-2: oklch(0.74 0.15 305 / 34%);
-  --mesh-3: oklch(0.82 0.13 35 / 34%);
-  --mesh-4: oklch(0.8 0.13 195 / 30%);
+     Chữ đè lên luôn là ĐEN ở CẢ HAI theme (--success-foreground /
+     --danger-foreground). Đây không phải lựa chọn thẩm mỹ mà là bắt buộc: nền
+     neon có độ sáng rất cao nên chữ sáng #f5f5f5 đè lên chỉ đạt 1.1–3.2:1,
+     không đọc nổi. Chữ đen cho 6.9:1 (đỏ) và 16.1:1 (xanh).
+
+     Vì vậy dark mode dùng CHUNG giá trị với light: khối neon + chữ đen hoạt
+     động như nhau trên mọi nền, không cần biến thể tối riêng. */
+  --success: #4aff9e;
+  --success-bg: #4aff9e;
+  --success-foreground: #000000;
+  --danger: #ff2d2d; /* đậm hơn --danger-bg, dùng cho hover nút xoá */
+  --danger-bg: #ff5c5c;
+  --danger-foreground: #000000;
+
+  --background: var(--bg);
+  --foreground: #000000;
+  --card: var(--bg-alt);
+  --card-foreground: var(--foreground);
+  /* Trắng tinh trên nền thẻ kem: khác cả độ sáng lẫn tông ấm/lạnh. */
+  --surface: var(--bg);
+  --popover: var(--bg-alt);
+  --popover-foreground: var(--foreground);
+  --primary: #ffd400;
+  --primary-foreground: #000000;
+  --secondary: var(--bg);
+  --secondary-foreground: #000000;
+  --muted: var(--bg-alt);
+  --muted-foreground: #52525b;
+  --accent: #ffd400;
+  --accent-foreground: #000000;
+  /* Ở light không đổi tông khi hover — phản hồi đến từ chuyển động (khối nhô
+     lên / sụp vào bóng), xem chú thích @utility brutal. */
+  --accent-alt: #ffd400;
+  --destructive: var(--danger);
+  --destructive-foreground: var(--danger-foreground);
+  --border: #000000;
+  --input: #000000;
+  --ring: #000000;
+  --shadow-color: #000000;
+  --overlay: rgb(0 0 0 / 50%);
+  /* Bo nhẹ chứ không vuông tuyệt đối — cả thang radius-* ở trên dẫn xuất theo,
+     nên chỉnh độ bo của toàn app chỉ cần sửa đúng dòng này. */
+  --radius: 0.625rem;
+
+  /* Nền chấm bi (xem body::before). Màu chấm phải rất nhạt: nó là hoa văn nền,
+     không phải nội dung. */
+  --dot: rgb(0 0 0 / 14%);
+  --dot-size: 22px;
 }
 
 .dark {
-  --background: oklch(0.18 0.022 265);
-  --foreground: oklch(0.96 0.005 255);
-  --card: oklch(0.24 0.02 265);
-  --card-foreground: oklch(0.96 0.005 255);
-  --popover: oklch(0.26 0.022 265);
-  --popover-foreground: oklch(0.96 0.005 255);
-  /* Ở dark thì ngược lại: lớp kính sáng làm nền nhạt đi, nên màu chữ phải sáng
-     hơn mức trực giác mới đạt AA. */
-  --primary: oklch(0.79 0.14 255);
-  --primary-foreground: oklch(0.16 0.02 265);
-  --secondary: oklch(0.3 0.025 265);
-  --secondary-foreground: oklch(0.96 0.005 255);
-  --muted: oklch(0.3 0.02 265);
-  --muted-foreground: oklch(0.82 0.02 265);
-  --accent: oklch(0.35 0.035 265);
-  --accent-foreground: oklch(0.96 0.005 255);
-  --destructive: oklch(0.82 0.14 22);
-  --destructive-foreground: oklch(0.16 0.02 265);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 10%);
-  --ring: oklch(0.79 0.14 255);
-  --credit: oklch(0.83 0.15 158);
-  --overlay: oklch(0.12 0.02 265 / 55%);
+  --bg: #121212;
+  --bg-alt: #18181b;
 
-  /* Ở dark, kính là một màng sáng mỏng phủ lên nền tối (không phải màng trắng
-     đục như light) — nên alpha thấp hơn hẳn nhưng vẫn đủ tách khỏi nền. */
-  --glass-bg: oklch(1 0 0 / 8%);
-  --glass-strong-bg: oklch(0.28 0.025 265 / 85%);
-  --glass-quiet-bg: oklch(1 0 0 / 4.5%);
-  --glass-border: oklch(1 0 0 / 14%);
-  --glass-quiet-border: oklch(1 0 0 / 10%);
-  --glass-highlight: oklch(1 0 0 / 20%);
-  --glass-fallback-bg: var(--card);
-  --glass-shadow:
-    0 1px 2px oklch(0 0 0 / 24%), 0 8px 24px -8px oklch(0 0 0 / 40%),
-    0 24px 48px -24px oklch(0 0 0 / 50%);
+  /* Cố ý KHÔNG khai báo lại --success-* / --danger-*: khối neon + chữ đen đọc
+     tốt như nhau trên cả nền sáng lẫn nền tối. Xem chú thích ở :root. */
 
-  --mesh-1: oklch(0.55 0.19 262 / 40%);
-  --mesh-2: oklch(0.48 0.18 310 / 34%);
-  --mesh-3: oklch(0.5 0.14 25 / 26%);
-  --mesh-4: oklch(0.52 0.13 200 / 28%);
+  --background: var(--bg);
+  --foreground: #f5f5f5;
+  --card: var(--bg-alt);
+  --card-foreground: var(--foreground);
+  /* Bậc thứ ba, SÁNG hơn thẻ — không dùng lại --bg như ở light được, vì
+     #121212 trên nền thẻ #18181b gần như không phân biệt nổi. */
+  --surface: #27272a;
+  --popover: var(--bg-alt);
+  --popover-foreground: var(--foreground);
+  /* #ffd400 nguyên bản chói mắt khi làm mảng lớn trên nền tối; --accent-alt là
+     bản trầm hơn dành cho mảng nền, còn --accent giữ nguyên cho chi tiết nhỏ. */
+  --primary: var(--accent-alt);
+  --primary-foreground: #000000;
+  --secondary: var(--bg);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--bg-alt);
+  --muted-foreground: #a1a1aa;
+  --accent: #ffd400;
+  --accent-foreground: #000000;
+  --accent-alt: #eab308;
+  --destructive: var(--danger);
+  /* Đen chứ không phải --foreground: --destructive luôn là nền neon. */
+  --destructive-foreground: var(--danger-foreground);
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --ring: #e5e5e5;
+  /* Bóng SÁNG trên nền tối — đảo ngược so với light, nếu giữ bóng đen thì
+     trên nền #121212 sẽ không nhìn thấy gì. */
+  --shadow-color: #f5f5f5;
+  --overlay: rgb(0 0 0 / 70%);
+  --dot: rgb(255 255 255 / 13%);
 }
 
-/* ── Utility kính ───────────────────────────────────────────────────────
-   Chỉ MỘT utility, điều chỉnh qua biến. Cần đục hơn (dialog) thì override biến
-   ngay trên phần tử đó thay vì chồng thêm class:
+/* ── Utility khối brutal ────────────────────────────────────────────────
+   Chỉ MỘT utility, điều chỉnh qua biến. Cần bóng to hơn (dialog) hay chỉ viền
+   một cạnh (header) thì override biến ngay trên phần tử đó thay vì chồng
+   thêm class:
 
-     class="glass [--glass-bg:var(--glass-strong-bg)] [--glass-blur:32px]"
+     class="brutal [--brutal-shadow:var(--shadow-brutal-lg)]"
+     class="brutal [--brutal-border-width:0_0_2px_0] [--brutal-shadow:none]"
 
-   Làm vậy vì hai class cùng đặt `background` sẽ ăn nhau theo thứ tự xuất hiện
-   trong stylesheet — thứ tự mà tailwind-merge không hề biết để dàn xếp. Override
-   biến thì luôn đúng, bất kể thứ tự.
+   Làm vậy vì utility `border-*` / `shadow-*` của Tailwind được sinh ra TRƯỚC
+   custom utility trong stylesheet nên KHÔNG ghi đè nổi .brutal — và đó là thứ
+   tự mà tailwind-merge không hề biết để dàn xếp. Override biến thì luôn đúng,
+   bất kể thứ tự.
 
-   Bề mặt phụ NẰM TRONG một lớp kính (RecordRow, Input, nút) không dùng utility
-   này: kính lồng kính vừa hại hiệu năng vừa cho ra màu xám đục, vì lớp con lấy
-   mẫu nền của lớp cha chứ không phải nền trang. Chúng dùng thẳng
-   --glass-quiet-bg / --glass-quiet-border, không blur. */
-@utility glass {
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  /* Bề rộng viền qua biến chứ không hardcode: utility `border-*` của Tailwind
-     được sinh ra TRƯỚC .glass trong stylesheet nên không ghi đè nổi nó. Muốn
-     viền một cạnh thì override biến, vd header:
-     class="glass [--glass-border-width:0_0_1px_0]" */
-  border-width: var(--glass-border-width, 1px);
+   Phần tử tương tác (nút, mục nav) không dùng utility này mà tự đặt
+   border/shadow bằng class Tailwind, vì chúng còn phải đổi bóng theo
+   hover/active — xem buttonVariants trong shared/ui/button.tsx. */
+@utility brutal {
+  border-width: var(--brutal-border-width, 2px);
   border-style: solid;
-  border-color: var(--glass-border);
-  box-shadow:
-    inset 0 1px 0 0 var(--glass-highlight),
-    var(--glass-shadow);
-
-  @supports not
-    ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    background: var(--glass-fallback-bg);
-  }
+  border-color: var(--border);
+  border-radius: var(--brutal-radius, var(--radius-lg));
+  box-shadow: var(--brutal-shadow, var(--shadow-brutal));
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
@@ -191,11 +205,16 @@
     @apply font-sans;
   }
 
-  /* Nền gradient mesh — thứ cho lớp kính có cái để làm mờ và bắt màu. Trên nền
-     phẳng thì mọi hiệu ứng kính đều vô hình.
+  /* Focus cứng, không nhoè: outline đặc 2px cách viền 2px. Cố ý KHÔNG dùng
+     vàng làm màu focus — #ffd400 trên nền trắng chỉ ~1.7:1, gần như vô hình. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Nền chấm bi — hoa văn duy nhất của bản neobrutalism.
      `fixed` là điểm mấu chốt về hiệu năng: nền đứng yên khi cuộn nên trình
-     duyệt không phải vẽ lại gradient (và không phải tính lại backdrop-filter
-     của từng thẻ) theo mỗi frame. Cũng vì vậy mà không dùng
+     duyệt không phải vẽ lại hoa văn theo mỗi frame. Cũng vì vậy mà không dùng
      background-attachment: fixed — iOS Safari xử lý thuộc tính đó rất tệ. */
   body::before {
     content: "";
@@ -203,15 +222,16 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background-image:
-      radial-gradient(60rem 60rem at 12% -10%, var(--mesh-1), transparent 60%),
-      radial-gradient(50rem 50rem at 92% 6%, var(--mesh-2), transparent 62%),
-      radial-gradient(48rem 48rem at 78% 96%, var(--mesh-3), transparent 60%),
-      radial-gradient(44rem 44rem at 6% 88%, var(--mesh-4), transparent 62%);
+    background-image: radial-gradient(
+      var(--dot) 1.5px,
+      transparent 1.5px
+    );
+    background-size: var(--dot-size) var(--dot-size);
   }
 }
 
-/* Người dùng tắt hiệu ứng chuyển động thì bỏ luôn animation mở dialog. */
+/* Người dùng tắt hiệu ứng chuyển động thì bỏ luôn animation mở dialog và cú
+   nhún của nút. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

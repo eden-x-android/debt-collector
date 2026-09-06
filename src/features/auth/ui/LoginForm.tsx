@@ -92,7 +92,11 @@ export function LoginForm() {
                 autoFocus
               />
             </div>
-            {error ? <p className="text-sm text-destructive">{error}</p> : null}
+            {error ? (
+              <p className="brutal bg-danger-bg px-3 py-2 text-sm font-bold text-danger-foreground [--brutal-shadow:var(--shadow-brutal-sm)]">
+                {error}
+              </p>
+            ) : null}
             <Button
               type="submit"
               size="lg"
@@ -120,8 +124,16 @@ export function LoginForm() {
                 autoFocus
               />
             </div>
-            {info ? <p className="text-sm text-muted-foreground">{info}</p> : null}
-            {error ? <p className="text-sm text-destructive">{error}</p> : null}
+            {info ? (
+              <p className="brutal bg-accent px-3 py-2 text-sm font-medium text-accent-foreground [--brutal-shadow:var(--shadow-brutal-sm)]">
+                {info}
+              </p>
+            ) : null}
+            {error ? (
+              <p className="brutal bg-danger-bg px-3 py-2 text-sm font-bold text-danger-foreground [--brutal-shadow:var(--shadow-brutal-sm)]">
+                {error}
+              </p>
+            ) : null}
             <Button
               type="submit"
               size="lg"
@@ -134,7 +146,7 @@ export function LoginForm() {
             <div className="flex items-center justify-between text-sm">
               <button
                 type="button"
-                className="text-muted-foreground hover:text-foreground"
+                className="font-bold text-muted-foreground underline underline-offset-4 hover:text-foreground hover:no-underline"
                 onClick={() => {
                   setStep("username");
                   setCode("");
@@ -146,7 +158,7 @@ export function LoginForm() {
               </button>
               <button
                 type="button"
-                className="text-primary hover:underline disabled:opacity-50"
+                className="font-bold underline underline-offset-4 hover:no-underline disabled:opacity-50"
                 onClick={handleResend}
                 disabled={requestOtp.isPending}
               >

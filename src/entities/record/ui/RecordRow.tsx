@@ -26,22 +26,29 @@ export function RecordRow({
   return (
     <div
       className={cn(
-        // Không backdrop-filter: dòng này nằm trong GroupCard vốn đã là kính.
-        "flex items-start justify-between gap-3 rounded-lg border border-[var(--glass-quiet-border)] bg-[var(--glass-quiet-bg)] px-3 py-2",
+        // --surface: bậc nổi hơn --card của GroupCard bọc ngoài ở CẢ hai theme
+        // (xem chú thích phân tầng bề mặt trong globals.css). Bóng và bán kính
+        // đều nhỏ hơn thẻ cha một bậc — góc trong mà cùng bán kính với góc
+        // ngoài thì nhìn phồng ra.
+        "brutal flex items-start justify-between gap-3 bg-surface px-3 py-2 [--brutal-radius:var(--radius-md)] [--brutal-shadow:var(--shadow-brutal-sm)]",
         className,
       )}
     >
       <div className="min-w-0 flex-1">
         {badge ? (
-          <span className="mb-0.5 inline-block rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+          <span className="mb-1 inline-block rounded-sm border-2 border-border bg-accent px-2 py-0.5 text-xs font-bold text-accent-foreground">
             {badge}
           </span>
         ) : null}
         <div
           className={cn(
-            "font-medium tabular-nums",
-            // Khoản âm = cấn trừ → tô xanh cho dễ phân biệt với khoản nợ.
-            isCredit(amount) && "text-credit",
+            "font-bold tabular-nums",
+            // Khoản âm = cấn trừ → khối xanh neon cho dễ phân biệt với khoản
+            // nợ. Là KHỐI chứ không phải chữ xanh, và chữ phải ép về
+            // --success-foreground (đen) ở CẢ hai theme — chữ sáng mặc định của
+            // dark đè lên nền neon chỉ đạt ~1.2:1 (xem chú thích globals.css).
+            isCredit(amount) &&
+              "inline-block rounded-sm border-2 border-border bg-success-bg px-1.5 text-success-foreground",
           )}
         >
           {formatVnd(amount)}
