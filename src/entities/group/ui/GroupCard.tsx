@@ -30,14 +30,16 @@ export function GroupCard({
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <CardTitle className="truncate text-base">{name}</CardTitle>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <CardTitle className="truncate text-lg">{name}</CardTitle>
+            <p className="mt-1.5 text-sm text-muted-foreground">
               {recordCount} khoản ·{" "}
               <span
                 className={cn(
-                  "font-semibold tabular-nums",
-                  // Tổng âm = bị cấn trừ vượt số nợ.
-                  isCredit(total) ? "text-credit" : "text-foreground",
+                  "font-bold tabular-nums text-foreground",
+                  // Tổng âm = bị cấn trừ vượt số nợ → khối xanh neon, xem chú
+                  // thích cùng chủ đề trong RecordRow.
+                  isCredit(total) &&
+                    "inline-block rounded-sm border-2 border-border bg-success-bg px-1.5 text-success-foreground",
                 )}
               >
                 {formatVnd(total)}

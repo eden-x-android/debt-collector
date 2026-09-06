@@ -4,28 +4,38 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/shared/lib/utils"
 
 /**
- * Nút luôn nằm TRONG một bề mặt kính (Card, header), nên cố ý không dùng
- * backdrop-filter — kính lồng kính cho ra màu xám đục vì lớp con lấy mẫu nền
- * của lớp cha chứ không phải nền trang. Chất thuỷ tinh ở đây đến từ vệt sáng
- * mép trên + bóng đổ mềm, không từ blur.
+ * Khối brutal của nút: viền đặc + bóng cứng, phản hồi bằng CHUYỂN ĐỘNG chứ
+ * không bằng đổi tông màu.
+ *
+ *   nghỉ   → bóng 2px
+ *   hover  → khối nhích lên trái-trên 2px, bóng nở ra 4px (nhô lên khỏi mặt)
+ *   active → khối dịch xuống đúng 2px vị trí bóng, bóng biến mất (sụp vào)
+ *
+ * Tổng dịch chuyển hover→active là 4px nên cú nhấn thấy rõ. Dùng class Tailwind
+ * chứ không dùng @utility brutal vì bóng phải đổi theo trạng thái, mà utility
+ * đặt box-shadow trực tiếp thì class shadow-* không ghi đè nổi (xem chú thích
+ * @utility brutal trong globals.css).
  */
-const SHEEN =
-  "shadow-[inset_0_1px_0_0_var(--glass-highlight),0_1px_2px_oklch(0.2_0.03_265_/_10%)]";
+const BRUTAL =
+  "border-2 border-border shadow-brutal-sm hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal active:translate-x-0.5 active:translate-y-0.5 active:shadow-none";
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-full border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-md border-2 border-transparent text-sm font-bold whitespace-nowrap transition-all duration-100 outline-none select-none disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: `bg-primary text-primary-foreground hover:bg-primary/85 ${SHEEN}`,
-        outline: `border-[var(--glass-quiet-border)] bg-[var(--glass-quiet-bg)] hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground ${SHEEN}`,
-        secondary: `bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground aria-expanded:bg-secondary aria-expanded:text-secondary-foreground ${SHEEN}`,
-        // ghost/link cố ý trần trụi: chúng là nút icon nhỏ nằm dày đặc trong
-        // thẻ (xoá, đánh dấu xong), thêm nền/bóng vào là danh sách rối ngay.
+        default: `bg-primary text-primary-foreground hover:bg-accent ${BRUTAL}`,
+        outline: `bg-surface text-foreground hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground ${BRUTAL}`,
+        secondary: `bg-card text-card-foreground hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground ${BRUTAL}`,
+        // ghost cố ý trần trụi lúc nghỉ: nó là nút icon nhỏ nằm dày đặc trong
+        // thẻ (xoá, đánh dấu xong), gắn viền + bóng cho từng cái là danh sách
+        // rối ngay. Khối brutal chỉ hiện ra khi hover/focus.
         ghost:
-          "hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground",
-        destructive: `bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 ${SHEEN}`,
-        link: "text-primary underline-offset-4 hover:underline",
+          "hover:border-border hover:bg-accent hover:text-accent-foreground aria-expanded:border-border aria-expanded:bg-accent aria-expanded:text-accent-foreground",
+        // Khối đỏ neon + chữ đen (cả 2 theme — chữ sáng trên neon chỉ đạt
+        // ~3:1). Hover sang --danger đậm hơn.
+        destructive: `bg-danger-bg text-danger-foreground hover:bg-danger ${BRUTAL}`,
+        link: "font-bold underline underline-offset-4 hover:no-underline",
       },
       size: {
         default:

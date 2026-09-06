@@ -28,7 +28,7 @@ export function HistoryBoard() {
       ) : null}
 
       {isError ? (
-        <p className="text-sm text-destructive">
+        <p className="brutal bg-danger-bg px-3 py-2 text-sm font-bold text-danger-foreground [--brutal-shadow:var(--shadow-brutal-sm)]">
           {error instanceof Error ? error.message : "Không tải được lịch sử"}
         </p>
       ) : null}

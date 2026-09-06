@@ -85,7 +85,10 @@ export function AddRecordForm({ groupId }: { groupId: string }) {
             onChange={(e) => setAmount(e.target.value)}
             className={cn(
               "flex-1 sm:w-40 sm:flex-none",
-              negative && "text-credit",
+              // Đang nhập số âm (cấn trừ) → đổi NỀN ô cho khớp chip xanh neon ở
+              // RecordRow, kèm ép chữ về đen: chữ sáng mặc định của dark đè lên
+              // nền neon không đọc nổi (xem chú thích trong globals.css).
+              negative && "bg-success-bg font-bold text-success-foreground",
             )}
           />
         </div>
@@ -112,7 +115,11 @@ export function AddRecordForm({ groupId }: { groupId: string }) {
           className="sm:w-64"
         />
       </div>
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      {error ? (
+        <p className="brutal bg-danger-bg px-3 py-2 text-sm font-bold text-danger-foreground [--brutal-shadow:var(--shadow-brutal-sm)]">
+          {error}
+        </p>
+      ) : null}
     </form>
   );
 }

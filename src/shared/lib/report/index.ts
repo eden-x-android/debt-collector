@@ -21,7 +21,7 @@ function esc(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-/** Class cho ô số tiền — khoản âm (cấn trừ) tô xanh. */
+/** Class cho ô số tiền — khoản âm (cấn trừ) tô nền xanh nhạt. */
 function numClass(amount: number): string {
   return isCredit(amount) ? "num credit" : "num";
 }
@@ -59,16 +59,23 @@ function toHtml(groups: GroupWithRecordsDto[]): string {
 <html lang="vi"><head><meta charset="utf-8">
 <title>Báo cáo ghi nợ</title>
 <style>
-  body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:800px;margin:24px auto;padding:0 16px;color:#111}
-  h1{font-size:22px} h2{font-size:16px;margin-top:24px}
-  table{border-collapse:collapse;width:100%;margin-top:8px;font-size:14px}
-  th,td{border:1px solid #ddd;padding:6px 10px;text-align:left}
-  th{background:#f5f5f5}
+  /* Neobrutalism: viền đen đặc, không bo góc, không bóng mềm. Giữ khớp bằng
+     TAY với token trong src/app/globals.css (light) — file này là HTML độc
+     lập, không đọc được CSS variable của app. */
+  body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:800px;margin:24px auto;padding:0 16px;background:#fffbeb;color:#000}
+  h1{font-size:26px;letter-spacing:-.02em;border:2px solid #000;background:#ffd400;padding:8px 12px;box-shadow:4px 4px 0 0 #000}
+  h2{font-size:16px;margin-top:28px}
+  table{border-collapse:collapse;width:100%;margin-top:8px;font-size:14px;background:#fff;border:2px solid #000;box-shadow:4px 4px 0 0 #000}
+  th,td{border:2px solid #000;padding:6px 10px;text-align:left}
+  th{background:#ffd400;font-weight:700}
   .num{text-align:right;font-variant-numeric:tabular-nums}
-  .total{font-weight:600}
-  .credit{color:#00763a}
-  .muted{color:#888;text-align:center}
-  .grand{margin-top:24px;font-size:16px;font-weight:700}
+  .total{font-weight:700}
+  /* Khoản âm = KHỐI nền xanh nhạt + chữ đen, không phải chữ xanh: #22c55e làm
+     màu chữ không đạt ngưỡng tương phản WCAG AA. */
+  .credit{background:#4aff9e;font-weight:700}
+  .muted{color:#52525b;text-align:center}
+  .grand{margin-top:24px;font-size:16px;font-weight:700;border:2px solid #000;background:#ffd400;padding:8px 12px;box-shadow:4px 4px 0 0 #000}
+  .grand.credit{background:#4aff9e}
 </style></head>
 <body>
 <h1>Báo cáo ghi nợ</h1>

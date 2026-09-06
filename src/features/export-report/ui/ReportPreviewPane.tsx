@@ -7,7 +7,9 @@ export function ReportPreviewPane({ preview }: { preview: ReportPreview }) {
   if (preview.format === "png") {
     return (
       // Ảnh báo cáo có thể cao tới 4000px nên phải cuộn được trong khung.
-      <div className="max-h-[60vh] overflow-auto rounded-lg border border-[var(--glass-quiet-border)] bg-white">
+      // Nền khớp màu giấy của báo cáo (--bg-alt ở light) để không lộ viền trắng
+      // quanh ảnh; cố định chứ không theo theme vì báo cáo luôn là bản in sáng.
+      <div className="max-h-[60vh] overflow-auto rounded-md border-2 border-border bg-[#fffbeb]">
         {/* Ảnh do chính server sinh, kích thước biết trước ở runtime nên dùng
             <img> thường thay vì next/image (next/image cần width/height tĩnh
             hoặc fill, và tối ưu hoá là vô nghĩa với blob URL tạm). */}
@@ -25,7 +27,7 @@ export function ReportPreviewPane({ preview }: { preview: ReportPreview }) {
       title="Xem trước báo cáo nợ"
       sandbox=""
       srcDoc={preview.html}
-      className="h-[60vh] w-full rounded-lg border border-[var(--glass-quiet-border)] bg-white"
+      className="h-[60vh] w-full rounded-md border-2 border-border bg-[#fffbeb]"
     />
   );
 }

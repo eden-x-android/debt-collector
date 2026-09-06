@@ -1,14 +1,22 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "./query-provider";
 
-// Liquid Glass được thiết kế quanh SF Pro. SF Pro không phát hành trên Google
-// Fonts, nên --font-sans (xem globals.css) ưu tiên -apple-system để lấy SF thật
-// trên iPhone/Mac, và rơi về Inter ở nơi khác — Inter là bản gần SF nhất và có
-// đủ dấu tiếng Việt.
+// Neobrutalism cần mặt chữ giống hệt nhau trên mọi máy, nên --font-sans (xem
+// globals.css) dùng thẳng Inter thay vì ưu tiên font hệ thống như bản trước.
 const inter = Inter({
   variable: "--font-inter",
+  subsets: ["latin", "vietnamese"],
+});
+
+// Tiêu đề dùng grotesk đậm cho đúng chất neobrutalism. Chỉ nạp weight 700 —
+// font này không dùng cho body nên không cần dải weight. Subset "vietnamese"
+// là bắt buộc: thiếu nó thì chữ có dấu rơi về font fallback và tiêu đề sẽ lẫn
+// hai mặt chữ trong cùng một dòng.
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  weight: ["700"],
   subsets: ["latin", "vietnamese"],
 });
 
@@ -36,7 +44,7 @@ export default function RootLayout({
     <html
       lang="vi"
       suppressHydrationWarning
-      className={`${inter.variable} h-full antialiased`}
+      className={`${inter.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

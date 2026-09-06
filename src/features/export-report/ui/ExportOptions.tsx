@@ -39,14 +39,14 @@ export function ExportOptions({
           {groups.length > 0 ? (
             <button
               type="button"
-              className="text-xs text-primary hover:underline"
+              className="text-xs font-bold underline underline-offset-4 hover:no-underline"
               onClick={onToggleAll}
             >
               {allSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
             </button>
           ) : null}
         </div>
-        <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-[var(--glass-quiet-border)] bg-[var(--glass-quiet-bg)] p-2">
+        <div className="max-h-48 space-y-1 overflow-y-auto rounded-md border-2 border-border bg-surface p-2">
           {groups.length === 0 ? (
             <p className="p-2 text-sm text-muted-foreground">
               Chưa có nhóm nợ nào.
@@ -55,13 +55,13 @@ export function ExportOptions({
             groups.map((g) => (
               <Label
                 key={g.id}
-                className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent"
+                className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 font-medium hover:bg-accent hover:text-accent-foreground"
               >
                 <input
                   type="checkbox"
                   checked={selected.has(g.id)}
                   onChange={() => onToggle(g.id)}
-                  className="size-4 accent-primary"
+                  className="size-4 accent-[var(--accent)]"
                 />
                 <span className="flex-1 truncate">{g.name}</span>
                 <span className="text-xs text-muted-foreground">
@@ -79,7 +79,9 @@ export function ExportOptions({
           {FORMATS.map((f) => (
             <Label
               key={f.value}
-              className="flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--glass-quiet-border)] bg-[var(--glass-quiet-bg)] px-3 py-2 hover:bg-accent has-[:checked]:border-primary has-[:checked]:bg-accent"
+              // Viền vốn đã đen ở mọi trạng thái, nên "đang chọn" thể hiện bằng
+              // nền vàng + bóng cứng chứ không bằng đổi màu viền.
+              className="flex cursor-pointer items-center gap-2 rounded-md border-2 border-border bg-surface px-3 py-2 font-medium transition-all duration-100 hover:bg-accent hover:text-accent-foreground has-[:checked]:bg-accent has-[:checked]:text-accent-foreground has-[:checked]:shadow-brutal-sm"
             >
               <input
                 type="radio"
@@ -87,7 +89,7 @@ export function ExportOptions({
                 value={f.value}
                 checked={format === f.value}
                 onChange={() => onFormatChange(f.value)}
-                className="size-4 accent-primary"
+                className="size-4 accent-[var(--accent)]"
               />
               {f.label}
             </Label>

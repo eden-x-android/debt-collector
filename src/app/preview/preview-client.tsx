@@ -78,12 +78,14 @@ export function PreviewClient() {
       <div className="flex flex-1 flex-col">
         <AppHeader />
         <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
-          <div className="mb-4 rounded-lg border-2 border-border bg-accent px-3 py-2 text-sm text-accent-foreground">
+          <div className="brutal mb-4 bg-accent px-3 py-2 text-sm font-medium text-accent-foreground [--brutal-shadow:var(--shadow-brutal-sm)]">
             Trang xem thử — dữ liệu giả, không có DB. Các nút ghi dữ liệu sẽ báo
             lỗi, đó là bình thường.
           </div>
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h1 className="min-w-0 truncate text-xl font-semibold">Nhóm nợ</h1>
+            <h1 className="min-w-0 truncate font-display text-2xl font-bold tracking-tight">
+              Nhóm nợ
+            </h1>
             <div className="flex shrink-0 items-center gap-2">
               <CreateGroupButton />
               <GroupSearch />
